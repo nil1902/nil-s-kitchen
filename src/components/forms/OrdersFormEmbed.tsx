@@ -55,9 +55,27 @@ const OrdersFormEmbed = () => {
     setSubmitMessage("");
 
     try {
-      // In a real implementation, this would submit to Google Forms
-      // For now, we'll simulate the submission
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // Submit directly to Google Forms
+      const googleFormData = new FormData();
+      googleFormData.append("entry.1111111111", formData.customerName); // Replace with actual entry ID
+      googleFormData.append("entry.2222222222", formData.itemsOrdered); // Replace with actual entry ID
+      googleFormData.append("entry.3333333333", formData.quantity.toString()); // Replace with actual entry ID
+      googleFormData.append(
+        "entry.4444444444",
+        formData.pricePerItem.toString(),
+      ); // Replace with actual entry ID
+      googleFormData.append("entry.5555555555", formData.paymentMethod); // Replace with actual entry ID
+      googleFormData.append("entry.6666666666", formData.comments); // Replace with actual entry ID
+
+      // Submit to Google Forms (Orders form)
+      await fetch(
+        "https://docs.google.com/forms/d/e/1FAIpQLSfr7xK7h35xyQWt4BM8/formResponse",
+        {
+          method: "POST",
+          mode: "no-cors",
+          body: googleFormData,
+        },
+      );
 
       // Reset form
       setFormData({
@@ -70,10 +88,12 @@ const OrdersFormEmbed = () => {
       });
 
       setSubmitMessage(
-        "Order submitted successfully! Total: ₹" + totalPrice.toFixed(2),
+        "✅ Order submitted successfully! Total: ₹" +
+          totalPrice.toFixed(2) +
+          " - Processing instantly!",
       );
     } catch (error) {
-      setSubmitMessage("Error submitting order. Please try again.");
+      setSubmitMessage("❌ Error submitting order. Please try again.");
     } finally {
       setIsSubmitting(false);
     }

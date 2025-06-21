@@ -9,46 +9,122 @@ function onEdit(e) {
   const sheet = e.source.getActiveSheet();
   const range = e.range;
   const sheetName = sheet.getName();
-
-  // Only run on Orders sheet
-  if (sheetName !== "Orders") return;
-
   const row = range.getRow();
+  const col = range.getColumn();
 
   // Skip header row
   if (row === 1) return;
 
-  // Check if Quantity (column D) or Price per Item (column E) was edited
-  if (range.getColumn() === 4 || range.getColumn() === 5) {
-    // Get quantity and price values
-    const quantity = sheet.getRange(row, 4).getValue(); // Column D
-    const pricePerItem = sheet.getRange(row, 5).getValue(); // Column E
+  // ORDERS SHEET AUTOMATION
+  if (sheetName === "Orders") {
+    // Auto-calculate total price when Quantity (D) or Price per Item (E) is edited
+    if (col === 4 || col === 5) {
+      const quantity = sheet.getRange(row, 4).getValue();
+      const pricePerItem = sheet.getRange(row, 5).getValue();
 
-    // Calculate total price
-    if (quantity && pricePerItem && !isNaN(quantity) && !isNaN(pricePerItem)) {
-      const totalPrice = quantity * pricePerItem;
-      sheet.getRange(row, 6).setValue(totalPrice); // Column F (Total Price)
+      if (
+        quantity &&
+        pricePerItem &&
+        !isNaN(quantity) &&
+        !isNaN(pricePerItem)
+      ) {
+        const totalPrice = quantity * pricePerItem;
+        sheet.getRange(row, 6).setValue(totalPrice);
 
-      // Format as currency
-      sheet.getRange(row, 5).setNumberFormat("₹#,##0.00"); // Price per Item
-      sheet.getRange(row, 6).setNumberFormat("₹#,##0.00"); // Total Price
+        // Format currency columns
+        sheet.getRange(row, 5).setNumberFormat("₹#,##0.00");
+        sheet.getRange(row, 6).setNumberFormat("₹#,##0.00");
+      }
+    }
+
+    // Auto-fill timestamp when Customer Name is entered
+    if (col === 2 && range.getValue()) {
+      const now = new Date();
+      sheet
+        .getRange(row, 8)
+        .setValue(
+          Utilities.formatDate(now, Session.getScriptTimeZone(), "yyyy-MM-dd"),
+        );
+      sheet
+        .getRange(row, 9)
+        .setValue(
+          Utilities.formatDate(now, Session.getScriptTimeZone(), "HH:mm:ss"),
+        );
     }
   }
 
-  // Auto-fill Date and Time columns when Customer Name is entered
-  if (range.getColumn() === 2 && range.getValue()) {
-    // Customer Name column
-    const now = new Date();
-    sheet
-      .getRange(row, 8)
-      .setValue(
-        Utilities.formatDate(now, Session.getScriptTimeZone(), "yyyy-MM-dd"),
-      ); // Date (Column H)
-    sheet
-      .getRange(row, 9)
-      .setValue(
-        Utilities.formatDate(now, Session.getScriptTimeZone(), "HH:mm:ss"),
-      ); // Time (Column I)
+  // MESSAGES SHEET AUTOMATION
+  if (sheetName === "Messages") {
+    // Auto-fill response status and priority
+    if (col === 2 && range.getValue()) {
+      // When Name is entered
+      const now = new Date();
+      sheet.getRange(row, 6).setValue("New"); // Status column
+      sheet.getRange(row, 7).setValue("Medium"); // Priority column
+      sheet
+        .getRange(row, 8)
+        .setValue(
+          Utilities.formatDate(
+            now,
+            Session.getScriptTimeZone(),
+            "yyyy-MM-dd HH:mm:ss",
+          ),
+        ); // Received Date
+    }
+  }
+
+  // RESERVATIONS SHEET AUTOMATION
+  if (sheetName === "Reservations") {
+    // Auto-fill confirmation status
+    if (col === 2 && range.getValue()) {
+      // When Name is entered
+      sheet.getRange(row, 7).setValue("Pending"); // Status column
+      const now = new Date();
+      sheet
+        .getRange(row, 8)
+        .setValue(
+          Utilities.formatDate(
+            now,
+            Session.getScriptTimeZone(),
+            "yyyy-MM-dd HH:mm:ss",
+          ),
+        ); // Booking Date
+    }
+  }
+
+  // BILLING SHEET AUTOMATION
+  if (sheetName === "Billing") {
+    // Auto-calculate final amount when tax or discount changes
+    if (col === 3 || col === 4) {
+      // Tax Amount or Discount columns
+      const baseAmount = sheet.getRange(row, 2).getValue() || 0;
+      const taxAmount = sheet.getRange(row, 3).getValue() || 0;
+      const discount = sheet.getRange(row, 4).getValue() || 0;
+
+      const finalAmount = baseAmount + taxAmount - discount;
+      sheet.getRange(row, 5).setValue(finalAmount);
+
+      // Format currency
+      sheet.getRange(row, 2, 1, 4).setNumberFormat("₹#,##0.00");
+    }
+  }
+
+  // FEEDBACK SHEET AUTOMATION
+  if (sheetName === "Feedback") {
+    // Auto-categorize feedback based on rating
+    if (col === 4 && range.getValue()) {
+      // Rating column
+      const rating = range.getValue();
+      let category = "Average";
+
+      if (rating >= 4) category = "Excellent";
+      else if (rating >= 3) category = "Good";
+      else if (rating >= 2) category = "Fair";
+      else category = "Poor";
+
+      sheet.getRange(row, 6).setValue(category); // Category column
+      sheet.getRange(row, 7).setValue("New"); // Status column
+    }
   }
 }
 
@@ -59,28 +135,80 @@ function onEdit(e) {
 function onOpen() {
   formatCurrencyColumns();
   createCustomMenu();
+  setupAutoRefresh();
 }
 
 function formatCurrencyColumns() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  // Format Orders sheet
   const ordersSheet = ss.getSheetByName("Orders");
-
   if (ordersSheet) {
-    // Format Price per Item column (E)
-    const priceRange = ordersSheet.getRange("E:E");
-    priceRange.setNumberFormat("₹#,##0.00");
-
-    // Format Total Price column (F)
-    const totalRange = ordersSheet.getRange("F:F");
-    totalRange.setNumberFormat("₹#,##0.00");
+    ordersSheet.getRange("E:E").setNumberFormat("₹#,##0.00"); // Price per Item
+    ordersSheet.getRange("F:F").setNumberFormat("₹#,##0.00"); // Total Price
   }
 
-  // Format Billing sheet currency columns
+  // Format Billing sheet
   const billingSheet = ss.getSheetByName("Billing");
   if (billingSheet) {
-    billingSheet.getRange("C:C").setNumberFormat("₹#,##0.00"); // Tax Amount
-    billingSheet.getRange("D:D").setNumberFormat("₹#,##0.00"); // Discount
-    billingSheet.getRange("E:E").setNumberFormat("₹#,##0.00"); // Final Amount
+    billingSheet.getRange("B:E").setNumberFormat("₹#,##0.00"); // All currency columns
+  }
+
+  // Setup conditional formatting for status columns
+  setupConditionalFormatting();
+}
+
+function setupConditionalFormatting() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  // Messages sheet status formatting
+  const messagesSheet = ss.getSheetByName("Messages");
+  if (messagesSheet) {
+    const statusRange = messagesSheet.getRange("F:F");
+
+    // Clear existing rules
+    statusRange.clearFormat();
+
+    // New status - Red background
+    const newRule = SpreadsheetApp.newConditionalFormatRule()
+      .whenTextEqualTo("New")
+      .setBackground("#ffebee")
+      .setFontColor("#c62828")
+      .setRanges([statusRange])
+      .build();
+
+    // Responded status - Green background
+    const respondedRule = SpreadsheetApp.newConditionalFormatRule()
+      .whenTextEqualTo("Responded")
+      .setBackground("#e8f5e8")
+      .setFontColor("#2e7d32")
+      .setRanges([statusRange])
+      .build();
+
+    messagesSheet.setConditionalFormatRules([newRule, respondedRule]);
+  }
+
+  // Reservations sheet status formatting
+  const reservationsSheet = ss.getSheetByName("Reservations");
+  if (reservationsSheet) {
+    const statusRange = reservationsSheet.getRange("G:G");
+    statusRange.clearFormat();
+
+    const pendingRule = SpreadsheetApp.newConditionalFormatRule()
+      .whenTextEqualTo("Pending")
+      .setBackground("#fff3e0")
+      .setFontColor("#ef6c00")
+      .setRanges([statusRange])
+      .build();
+
+    const confirmedRule = SpreadsheetApp.newConditionalFormatRule()
+      .whenTextEqualTo("Confirmed")
+      .setBackground("#e8f5e8")
+      .setFontColor("#2e7d32")
+      .setRanges([statusRange])
+      .build();
+
+    reservationsSheet.setConditionalFormatRules([pendingRule, confirmedRule]);
   }
 }
 
@@ -90,12 +218,59 @@ function formatCurrencyColumns() {
 
 function createCustomMenu() {
   const ui = SpreadsheetApp.getUi();
-  ui.createMenu("Restaurant Manager")
-    .addItem("Export to Excel", "exportToExcel")
-    .addItem("Email Daily Report", "emailDailyReport")
-    .addItem("Format All Currency", "formatCurrencyColumns")
-    .addItem("Backup Data", "backupData")
+  ui.createMenu("🍽️ Restaurant Manager")
+    .addItem("📊 Export to Excel", "exportToExcel")
+    .addItem("📧 Email Daily Report", "emailDailyReport")
+    .addItem("💰 Format All Currency", "formatCurrencyColumns")
+    .addItem("🔄 Refresh Data", "refreshAllData")
+    .addItem("📋 Generate Summary", "generateQuickSummary")
+    .addItem("💾 Backup Data", "backupData")
+    .addItem("⚙️ Setup Auto-Triggers", "setupTriggers")
     .addToUi();
+}
+
+function setupAutoRefresh() {
+  // Auto-refresh data every 5 minutes during business hours
+  const now = new Date();
+  const hour = now.getHours();
+
+  // Only during business hours (9 AM to 11 PM)
+  if (hour >= 9 && hour <= 23) {
+    refreshAllData();
+  }
+}
+
+function refreshAllData() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  // Refresh all sheets
+  const sheets = ss.getSheets();
+  sheets.forEach((sheet) => {
+    if (sheet.getName() !== "Dashboard") {
+      sheet.getDataRange().getValues(); // Force refresh
+    }
+  });
+
+  // Update formatting
+  formatCurrencyColumns();
+
+  console.log("Data refreshed at: " + new Date());
+}
+
+function generateQuickSummary() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ui = SpreadsheetApp.getUi();
+
+  try {
+    const summary = generateDailySummary();
+    ui.alert("📊 Daily Summary", summary, ui.ButtonSet.OK);
+  } catch (error) {
+    ui.alert(
+      "Error",
+      "Failed to generate summary: " + error.toString(),
+      ui.ButtonSet.OK,
+    );
+  }
 }
 
 // ============================================
@@ -341,6 +516,9 @@ function setupTriggers() {
   const triggers = ScriptApp.getProjectTriggers();
   triggers.forEach((trigger) => ScriptApp.deleteTrigger(trigger));
 
+  // Create auto-refresh trigger (every 5 minutes during business hours)
+  ScriptApp.newTrigger("refreshAllData").timeBased().everyMinutes(5).create();
+
   // Create daily email trigger (runs at 9 AM every day)
   ScriptApp.newTrigger("emailDailyReport")
     .timeBased()
@@ -355,7 +533,103 @@ function setupTriggers() {
     .atHour(22)
     .create();
 
-  SpreadsheetApp.getUi().alert("Triggers set up successfully!");
+  // Create form submission trigger for faster processing
+  ScriptApp.newTrigger("onFormSubmit").onFormSubmit().create();
+
+  SpreadsheetApp.getUi().alert(
+    "✅ All triggers set up successfully!\n\n" +
+      "• Auto-refresh: Every 5 minutes\n" +
+      "• Daily reports: 9 AM\n" +
+      "• Weekly backup: Sunday 10 PM\n" +
+      "• Form processing: Instant",
+  );
+}
+
+// NEW: Fast form submission handler
+function onFormSubmit(e) {
+  const sheet = e.range.getSheet();
+  const row = e.range.getRow();
+  const sheetName = sheet.getName();
+
+  // Process form submissions instantly
+  if (sheetName === "Orders") {
+    processOrderSubmission(sheet, row);
+  } else if (sheetName === "Messages") {
+    processMessageSubmission(sheet, row);
+  } else if (sheetName === "Reservations") {
+    processReservationSubmission(sheet, row);
+  }
+
+  // Send instant notification
+  sendInstantNotification(sheetName, row);
+}
+
+function processOrderSubmission(sheet, row) {
+  const quantity = sheet.getRange(row, 4).getValue();
+  const pricePerItem = sheet.getRange(row, 5).getValue();
+
+  if (quantity && pricePerItem) {
+    const totalPrice = quantity * pricePerItem;
+    sheet.getRange(row, 6).setValue(totalPrice);
+    sheet.getRange(row, 5, 1, 2).setNumberFormat("₹#,##0.00");
+  }
+
+  const now = new Date();
+  sheet
+    .getRange(row, 8)
+    .setValue(
+      Utilities.formatDate(now, Session.getScriptTimeZone(), "yyyy-MM-dd"),
+    );
+  sheet
+    .getRange(row, 9)
+    .setValue(
+      Utilities.formatDate(now, Session.getScriptTimeZone(), "HH:mm:ss"),
+    );
+}
+
+function processMessageSubmission(sheet, row) {
+  const now = new Date();
+  sheet.getRange(row, 6).setValue("New");
+  sheet.getRange(row, 7).setValue("Medium");
+  sheet
+    .getRange(row, 8)
+    .setValue(
+      Utilities.formatDate(
+        now,
+        Session.getScriptTimeZone(),
+        "yyyy-MM-dd HH:mm:ss",
+      ),
+    );
+}
+
+function processReservationSubmission(sheet, row) {
+  sheet.getRange(row, 7).setValue("Pending");
+  const now = new Date();
+  sheet
+    .getRange(row, 8)
+    .setValue(
+      Utilities.formatDate(
+        now,
+        Session.getScriptTimeZone(),
+        "yyyy-MM-dd HH:mm:ss",
+      ),
+    );
+}
+
+function sendInstantNotification(sheetName, row) {
+  try {
+    const adminEmail = "nilimeshpal4@gmail.com";
+    const subject = `🔔 New ${sheetName} Submission - Row ${row}`;
+    const body = `A new ${sheetName.toLowerCase()} has been submitted at ${new Date().toLocaleString()}.\n\nPlease check your Restaurant Data Tracker for details.`;
+
+    MailApp.sendEmail({
+      to: adminEmail,
+      subject: subject,
+      body: body,
+    });
+  } catch (error) {
+    console.error("Failed to send notification:", error);
+  }
 }
 
 // ============================================

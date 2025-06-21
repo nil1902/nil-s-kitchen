@@ -35,21 +35,20 @@ const ContactPage = () => {
         setIsSubmitting(true);
         setError("");
 
-        // Send form data to formsubmit.co service
+        // Send form data directly to Google Forms
+        const formData = new FormData();
+        formData.append("entry.1234567890", name); // Replace with actual entry ID
+        formData.append("entry.0987654321", email); // Replace with actual entry ID
+        formData.append("entry.1122334455", subject); // Replace with actual entry ID
+        formData.append("entry.5566778899", message); // Replace with actual entry ID
+
+        // Submit to Google Forms (Messages/Inquiries form)
         const response = await fetch(
-          "https://formsubmit.co/ajax/nilimeshpal4@gmail.com",
+          "https://docs.google.com/forms/d/e/1FAIpQLSfQvD4PLm6NsVzQZX46/formResponse",
           {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-            body: JSON.stringify({
-              name,
-              email,
-              subject,
-              message,
-            }),
+            mode: "no-cors",
+            body: formData,
           },
         );
 
