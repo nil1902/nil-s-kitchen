@@ -35,7 +35,7 @@ const GoogleFormsIntegration = () => {
     {
       id: "orders",
       name: "Orders Form",
-      url: "https://forms.gle/ORDERS_FORM_TO_BE_CREATED", // Create this form following the setup instructions
+      url: "https://forms.gle/r7xK7h35xyQWt4BM8", // Create this form following the setup instructions
       icon: <ShoppingCart className="h-5 w-5" />,
       color: "bg-red-100 text-red-800",
       description:

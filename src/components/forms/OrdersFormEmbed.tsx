@@ -81,7 +81,7 @@ const OrdersFormEmbed = () => {
 
   const openGoogleForm = () => {
     // Replace with actual Google Form URL once created
-    window.open("https://forms.gle/ORDERS_FORM_TO_BE_CREATED", "_blank");
+    window.open("https://forms.gle/r7xK7h35xyQWt4BM8", "_blank");
   };
 
   return (
