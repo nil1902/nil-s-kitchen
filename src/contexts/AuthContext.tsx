@@ -9,7 +9,7 @@ import {
   User,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-
+// 
 interface AuthContextType {
   currentUser: User | null;
   loading: boolean;
