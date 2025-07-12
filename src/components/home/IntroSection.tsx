@@ -10,25 +10,25 @@ interface IntroSectionProps {
 }
 
 const IntroSection = ({
-  title = "Welcome to Nil's Kitchen",
+  title = "Welcome to Bengal Bay",
   description = "Experience the finest culinary delights in a warm, inviting atmosphere. Our passion for exceptional food and service creates memorable dining experiences for all our guests.",
   chefName = "Chef Nilesh Kumar",
   chefDescription = "With over 5 years of culinary expertise, Chef Nilesh brings his unique vision and passion to every dish, combining traditional techniques with innovative flavors.",
-  restaurantHistory = "Established in 2020, Nil's Kitchen began as a small family restaurant and has grown into one of the city's most beloved dining destinations, known for our commitment to quality ingredients and authentic flavors.",
+  restaurantHistory = "Established in 2020, Bengal Bay began as a small family restaurant and has grown into one of the city's most beloved dining destinations, known for our commitment to quality ingredients and authentic flavors.",
 }: IntroSectionProps) => {
   return (
     <section className="w-full max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8 bg-white">
-      <div className="text-center mb-12">
-        <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl mb-4">
+      <div className="text-center mb-12 animate-fade-in">
+        <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl mb-4 animate-slide-in-down">
           {title}
         </h2>
-        <p className="max-w-3xl mx-auto text-xl text-gray-600">{description}</p>
+        <p className="max-w-3xl mx-auto text-xl text-gray-600 animate-fade-in delay-100">{description}</p>
       </div>
 
-      <Separator className="my-8" />
+      <Separator className="my-8 animate-fade-in delay-200" />
 
       <div className="grid md:grid-cols-2 gap-12 items-center">
-        <div className="space-y-5 bg-purple-100/20 text-white p-8 rounded-xl border border-emerald-200/40">
+        <div className="space-y-5 bg-purple-100/20 text-white p-8 rounded-xl border border-emerald-200/40 animate-slide-in-left">
           <h3 className="text-2xl font-semibold text-gray-900">
             {" "}
             <div className="flex items-center space-x-3">
@@ -53,7 +53,7 @@ const IntroSection = ({
           </div>
         </div>
 
-        <div className="bg-purple-100/20 text-white p-8 rounded-xl border border-emerald-200/40">
+        <div className="bg-purple-100/20 text-white p-8 rounded-xl border border-emerald-200/40 animate-slide-in-right">
           <h3 className="text-2xl font-semibold text-gray-900 mb-4">
             <div className="flex items-center space-x-3">
               <img

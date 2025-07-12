@@ -202,7 +202,7 @@ const ReservationPage = () => {
 
       // Send actual email using FormSubmit service
       const emailContent = {
-        to: email || "nilimeshpal4@gmail.com", // Default to restaurant owner's email
+        to: email || "nsresturent@gmail.com", // Default to restaurant owner's email
         subject: `✨ Your Table is Reserved! Confirmation #${newBookingId} - Nil's Kitchen`,
         message: `
           Dear ${name || "Guest"},
@@ -240,7 +240,7 @@ const ReservationPage = () => {
       try {
         // Actually send the email using FormSubmit
         const emailResponse = await fetch(
-          "https://formsubmit.co/ajax/nilimeshpal4@gmail.com",
+          "https://formsubmit.co/ajax/nsresturent@gmail.com",
           {
             method: "POST",
             headers: {

@@ -19,7 +19,7 @@ const AboutPage = () => {
         </div>
         <div className="relative h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center text-white text-center">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
-            About Nil's Kitchen
+            About Bengal Bay
           </h1>
           <p className="text-lg md:text-xl max-w-2xl">
             Our journey from a small family restaurant to a beloved culinary
@@ -35,7 +35,7 @@ const AboutPage = () => {
             <h2 className="text-3xl font-bold text-gray-900 mb-6">Our Story</h2>
             <div className="space-y-4 text-gray-600">
               <p>
-                Nil's Kitchen was founded in 2010 by Chef Nilesh Kumar with a
+                Bengal Bay was founded in 2010 by Chef Nilesh Kumar with a
                 simple mission: to share authentic flavors and create memorable
                 dining experiences for every guest.
               </p>
@@ -51,7 +51,7 @@ const AboutPage = () => {
                 innovation, and passion for exceptional food.
               </p>
               <p>
-                Today, Nil's Kitchen continues to be a family-owned
+                Today, Bengal Bay continues to be a family-owned
                 establishment where every customer is treated like a part of our
                 extended family. We take pride in creating a warm, inviting
                 atmosphere where memories are made around the table.

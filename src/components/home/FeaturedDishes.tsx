@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Star, StarHalf, Star as StarOutline } from "lucide-react";
 import DishCard from "../menu/DishCard";
 
 interface Dish {
@@ -92,7 +92,20 @@ const FeaturedDishes = ({
   onFavorite = (id) => console.log(`Added dish ${id} to favorites`),
 }: FeaturedDishesProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const itemsPerView = 4;
+  const [itemsPerView, setItemsPerView] = useState(4);
+
+  useEffect(() => {
+    const updateItemsPerView = () => {
+      if (window.innerWidth < 640) setItemsPerView(1); // mobile
+      else if (window.innerWidth < 768) setItemsPerView(2); // small tablet
+      else if (window.innerWidth < 1024) setItemsPerView(3); // tablet
+      else setItemsPerView(4); // desktop
+    };
+    updateItemsPerView();
+    window.addEventListener("resize", updateItemsPerView);
+    return () => window.removeEventListener("resize", updateItemsPerView);
+  }, []);
+
   const maxIndex = Math.max(0, dishes.length - itemsPerView);
 
   const handlePrev = () => {
@@ -133,20 +146,27 @@ const FeaturedDishes = ({
                 {dishes.map((dish) => (
                   <div
                     key={dish.id}
-                    className="w-full px-4 sm:w-1/2 md:w-1/3 flex-shrink-0"
+                    className="w-full px-2 sm:w-1/2 md:w-1/3 lg:w-1/4 flex-shrink-0 transition-transform duration-200 hover:scale-105 hover:z-10"
                   >
-                    <DishCard
-                      id={dish.id}
-                      name={dish.name}
-                      description={dish.description}
-                      price={dish.price}
-                      image={dish.image}
-                      rating={dish.rating}
-                      category={dish.category}
-                      isSpecial={dish.isSpecial}
-                      onAddToCart={onAddToCart}
-                      onFavorite={onFavorite}
-                    />
+                    <div className="relative">
+                      {dish.isSpecial && (
+                        <span className="absolute top-2 left-2 bg-amber-500 text-white text-xs font-bold px-2 py-1 rounded z-20 animate-fade-in">
+                          Special
+                        </span>
+                      )}
+                      <DishCard
+                        id={dish.id}
+                        name={dish.name}
+                        description={dish.description}
+                        price={dish.price}
+                        image={dish.image}
+                        rating={dish.rating}
+                        category={dish.category}
+                        isSpecial={dish.isSpecial}
+                        onAddToCart={onAddToCart}
+                        onFavorite={onFavorite}
+                      />
+                    </div>
                   </div>
                 ))}
               </div>
@@ -166,7 +186,7 @@ const FeaturedDishes = ({
 
         <div className="mt-8 flex justify-center space-x-2">
           {Array.from({
-            length: Math.min(5, Math.ceil(dishes.length / itemsPerView)),
+            length: Math.ceil(dishes.length / itemsPerView),
           }).map((_, index) => (
             <Button
               key={index}

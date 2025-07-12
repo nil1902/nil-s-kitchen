@@ -106,6 +106,8 @@ const CheckoutPage = () => {
         const orders = existingOrders ? JSON.parse(existingOrders) : [];
         orders.unshift(orderData);
         localStorage.setItem(userOrdersKey, JSON.stringify(orders));
+        // Save current userId for fallback order lookup
+        localStorage.setItem("currentUserId", currentUser.uid);
 
         // Create detailed email content with order information
         const emailContent = {
@@ -154,19 +156,45 @@ const CheckoutPage = () => {
           `,
         };
 
-        // Send confirmation email
+        // Create detailed email content for owner
+        const ownerEmailContent = {
+          ...emailContent,
+          to: "nsresturent@gmail.com",
+        };
+        // Create detailed email content for customer
+        const customerEmailContent = {
+          ...emailContent,
+          to: currentUser.email,
+        };
+
+        // Send confirmation email to owner
         try {
-          await fetch("https://formsubmit.co/ajax/nilimeshpal4@gmail.com", {
+          await fetch("https://formsubmit.co/ajax/nsresturent@gmail.com", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
               Accept: "application/json",
             },
-            body: JSON.stringify(emailContent),
+            body: JSON.stringify(ownerEmailContent),
           });
-          console.log("Confirmation email sent successfully");
+          console.log("Confirmation email sent successfully to owner");
         } catch (emailErr) {
-          console.error("Failed to send confirmation email", emailErr);
+          console.error("Failed to send confirmation email to owner", emailErr);
+        }
+
+        // Send confirmation email to customer
+        try {
+          await fetch("https://formsubmit.co/ajax/" + currentUser.email, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            body: JSON.stringify(customerEmailContent),
+          });
+          console.log("Confirmation email sent successfully to customer");
+        } catch (emailErr) {
+          console.error("Failed to send confirmation email to customer", emailErr);
         }
 
         // Show confirmation dialog
