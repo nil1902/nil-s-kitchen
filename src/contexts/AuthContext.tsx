@@ -61,7 +61,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setCurrentUser(user);
       setLoading(false);
     });
-
+// 
     return unsubscribe;
   }, []);
 
