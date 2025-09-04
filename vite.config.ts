@@ -8,11 +8,11 @@ const conditionalPlugins: any[] = [];
 // @ts-ignore
 if (process.env.TEMPO === "true") {
   conditionalPlugins.push(require("tempo-devtools/swc")());
-}
+} 
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: "/", // Correct for Vercel
+  base: "./", // Correct for Vercel
   optimizeDeps: {
     entries: ["src/main.tsx", "src/tempobook/**/*"],
     include: [

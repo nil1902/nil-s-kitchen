@@ -159,7 +159,7 @@ const Footer = () => {
             </p>
           </div>
           <p className="text-gray-500 text-center text-xl mt-1">
-              Design by Nilimesh & Soumik & Rohit
+              Crafted by Nilimesh & Soumik & Rohit
             </p>
           <div className="flex gap-4 mt-4 md:mt-0">
             <Link
