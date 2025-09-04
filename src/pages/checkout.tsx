@@ -106,15 +106,17 @@ const CheckoutPage = () => {
         const orders = existingOrders ? JSON.parse(existingOrders) : [];
         orders.unshift(orderData);
         localStorage.setItem(userOrdersKey, JSON.stringify(orders));
+        // Save current userId for fallback order lookup
+        localStorage.setItem("currentUserId", currentUser.uid);
 
         // Create detailed email content with order information
         const emailContent = {
           to: currentUser.email,
-          subject: `Order Confirmation #${randomOrderId} - Nil's Kitchen`,
+          subject: `Order Confirmation #${randomOrderId} - Bengal Bay`,
           message: `
             Dear ${currentUser.displayName || address.name},
 
-            Thank you for your order at Nil's Kitchen!
+            Thank you for your order at Bengal Bay!
 
             Order ID: ${randomOrderId}
             Date: ${new Date(orderDate).toLocaleString()}
@@ -147,26 +149,52 @@ const CheckoutPage = () => {
             Your order has been received and is being processed.
             You can track your order in the My Orders section of your profile.
 
-            Thank you for choosing Nil's Kitchen!
+            Thank you for choosing Bengal Bay!
             
             Best regards,
-            The Nil's Kitchen Team
+            The Bengal Bay Team
           `,
         };
 
-        // Send confirmation email
+        // Create detailed email content for owner
+        const ownerEmailContent = {
+          ...emailContent,
+          to: "snresturent@gmail.com",
+        };
+        // Create detailed email content for customer
+        const customerEmailContent = {
+          ...emailContent,
+          to: currentUser.email,
+        };
+
+        // Send confirmation email to owner
         try {
-          await fetch("https://formsubmit.co/ajax/nilimeshpal4@gmail.com", {
+          await fetch("https://formsubmit.co/ajax/snresturent@gmail.com", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
               Accept: "application/json",
             },
-            body: JSON.stringify(emailContent),
+            body: JSON.stringify(ownerEmailContent),
           });
-          console.log("Confirmation email sent successfully");
+          console.log("Confirmation email sent successfully to owner");
         } catch (emailErr) {
-          console.error("Failed to send confirmation email", emailErr);
+          console.error("Failed to send confirmation email to owner", emailErr);
+        }
+
+        // Send confirmation email to customer
+        try {
+          await fetch("https://formsubmit.co/ajax/" + currentUser.email, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            body: JSON.stringify(customerEmailContent),
+          });
+          console.log("Confirmation email sent successfully to customer");
+        } catch (emailErr) {
+          console.error("Failed to send confirmation email to customer", emailErr);
         }
 
         // Show confirmation dialog

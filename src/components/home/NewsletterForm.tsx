@@ -22,7 +22,7 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ className }) => {
     }
 
     try {
-      await fetch("https://formsubmit.co/ajax/nilimeshpal4@gmail.com", {
+      await fetch("https://formsubmit.co/ajax/snresturent@gmail.com", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -30,7 +30,7 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ className }) => {
         },
         body: JSON.stringify({
           email: email,
-          message: `New newsletter subscription: ${email} has subscribed to Nil's Kitchen newsletter.`,
+          message: `New newsletter subscription: ${email} has subscribed to Bengal Bay newsletter.`,
         }),
       });
       setIsSubmitted(true);

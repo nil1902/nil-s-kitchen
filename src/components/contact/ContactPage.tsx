@@ -37,7 +37,7 @@ const ContactPage = () => {
 
         // Send form data to formsubmit.co service
         const response = await fetch(
-          "https://formsubmit.co/ajax/nilimeshpal4@gmail.com",
+          "https://formsubmit.co/ajax/snresturent@gmail.com",
           {
             method: "POST",
             headers: {
@@ -261,26 +261,17 @@ const ContactPage = () => {
           <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">
             Find Us
           </h2>
-          <div className="w-full h-[400px] bg-gray-200 rounded-lg overflow-hidden">
-            <div className="flex items-center justify-center h-full bg-gray-100">
-              <div className="text-center p-6">
-                <MapPin className="h-12 w-12 mx-auto text-amber-600 mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Our Location</h3>
-                <p className="text-gray-600">
-                  Shantipur, Landmark Station Rd, PIN: 741404
-                  <br />
-                  Dist Nadia, West Bengal, India
-                </p>
-                <a
-                  href="https://www.google.com/maps/search/?api=1&query=Shantipur+Station+Rd+741404+West+Bengal+India"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-4 inline-block px-4 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 transition-colors"
-                >
-                  Open in Google Maps
-                </a>
-              </div>
-            </div>
+          <div className="w-full h-[400px] rounded-lg overflow-hidden border border-amber-100 shadow-sm">
+            <iframe
+              title="Bengal Bay Location Map"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3683.073282751765!2d88.4867!3d23.2571!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39f92b2e2e2e2e2e%3A0x123456789abcdef!2sShantipur%2C%20West%20Bengal%20741404%2C%20India!5e0!3m2!1sen!2sin!4v1710000000000!5m2!1sen!2sin"
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              allowFullScreen={true}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            ></iframe>
           </div>
         </div>
       </div>

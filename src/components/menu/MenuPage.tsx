@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DishCard from "./DishCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { menuItems } from "./MenuData";
 import FoodDetailDialog from "./FoodDetailDialog";
 
@@ -16,6 +16,7 @@ const MenuPage = () => {
   const [selectedDish, setSelectedDish] = useState<MenuItem | null>(null);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const [favorites, setFavorites] = useState<string[]>([]);
+  const [scrollPosition, setScrollPosition] = useState(0);
 
   const filteredDishes = menuItems.filter((dish) => {
     const matchesSearch =
@@ -50,6 +51,22 @@ const MenuPage = () => {
     setIsDetailDialogOpen(true);
   };
 
+  const handleScroll = (direction: 'left' | 'right') => {
+    const container = document.getElementById('scrollable-tabs');
+    if (container) {
+      const scrollAmount = 200;
+      const newPosition = direction === 'left' 
+        ? Math.max(0, scrollPosition - scrollAmount)
+        : Math.min(container.scrollWidth - container.clientWidth, scrollPosition + scrollAmount);
+      
+      container.scrollTo({
+        left: newPosition,
+        behavior: 'smooth'
+      });
+      setScrollPosition(newPosition);
+    }
+  };
+
   return (
     <div className="w-full bg-white py-16">
       <div className="container mx-auto px-4">
@@ -73,9 +90,10 @@ const MenuPage = () => {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
           </div>
 
+          {/* Desktop Tabs */}
           <Tabs
             defaultValue="all"
-            className="w-full md:w-auto"
+            className="hidden md:block w-full md:w-auto"
             onValueChange={setActiveTab}
           >
             <TabsList className="grid grid-cols-8 w-full md:w-auto">
@@ -89,6 +107,119 @@ const MenuPage = () => {
               <TabsTrigger value="dessert">Desserts</TabsTrigger>
             </TabsList>
           </Tabs>
+
+          {/* Mobile Sliding Tabs */}
+          <div className="md:hidden w-full">
+            <div className="relative">
+              {/* Left Scroll Button */}
+              <Button
+                variant="outline"
+                size="icon"
+                className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-md rounded-full h-8 w-8"
+                onClick={() => handleScroll('left')}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+
+              {/* Right Scroll Button */}
+              <Button
+                variant="outline"
+                size="icon"
+                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-md rounded-full h-8 w-8"
+                onClick={() => handleScroll('right')}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+
+              {/* Scrollable Tabs Container */}
+              <div 
+                id="scrollable-tabs"
+                className="flex gap-2 overflow-x-auto scrollbar-hide px-8 py-2"
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              >
+                <button
+                  onClick={() => setActiveTab("all")}
+                  className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    activeTab === "all"
+                      ? "bg-amber-600 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  All
+                </button>
+                <button
+                  onClick={() => setActiveTab("veg")}
+                  className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    activeTab === "veg"
+                      ? "bg-amber-600 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  Vegetarian
+                </button>
+                <button
+                  onClick={() => setActiveTab("non-veg")}
+                  className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    activeTab === "non-veg"
+                      ? "bg-amber-600 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  Non-Veg
+                </button>
+                <button
+                  onClick={() => setActiveTab("biryani")}
+                  className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    activeTab === "biryani"
+                      ? "bg-amber-600 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  Biryani
+                </button>
+                <button
+                  onClick={() => setActiveTab("bread")}
+                  className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    activeTab === "bread"
+                      ? "bg-amber-600 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  Bread
+                </button>
+                <button
+                  onClick={() => setActiveTab("starter")}
+                  className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    activeTab === "starter"
+                      ? "bg-amber-600 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  Starters
+                </button>
+                <button
+                  onClick={() => setActiveTab("drinks")}
+                  className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    activeTab === "drinks"
+                      ? "bg-amber-600 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  Drinks
+                </button>
+                <button
+                  onClick={() => setActiveTab("dessert")}
+                  className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    activeTab === "dessert"
+                      ? "bg-amber-600 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  Desserts
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

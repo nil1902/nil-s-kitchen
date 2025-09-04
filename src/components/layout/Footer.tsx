@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import NewsletterForm from "@/components/home/NewsletterForm";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
@@ -19,7 +20,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Restaurant Info */}
           <div>
-            <h3 className="text-xl font-bold mb-4">Nil's Kitchen</h3>
+            <h3 className="text-xl font-bold mb-4">Bengal Bay</h3>
             <ul className="space-y-3">
               <li className="flex items-center gap-2">
                 <MapPin size={18} />
@@ -31,7 +32,7 @@ const Footer = () => {
               </li>
               <li className="flex items-center gap-2">
                 <Mail size={18} />
-                <span>info@nilskitchen.com</span>
+                <span>snresturent@gmail.com</span>
               </li>
             </ul>
           </div>
@@ -62,52 +63,52 @@ const Footer = () => {
             <h3 className="text-xl font-bold mb-4">Quick Links</h3>
             <ul className="space-y-2">
               <li>
-                <a
-                  href="/menu"
+                <Link
+                  to="/menu"
                   className="hover:text-amber-400 transition-colors"
                 >
                   Menu
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href="/reservations"
+                <Link
+                  to="/reservations"
                   className="hover:text-amber-400 transition-colors"
                 >
                   Reservations
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href="/about"
+                <Link
+                  to="/about"
                   className="hover:text-amber-400 transition-colors"
                 >
                   About Us
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href="/contact"
+                <Link
+                  to="/contact"
                   className="hover:text-amber-400 transition-colors"
                 >
                   Contact
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href="/privacy-policy"
+                <Link
+                  to="/privacy-policy"
                   className="hover:text-amber-400 transition-colors"
                 >
                   Privacy Policy
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href="/terms-of-service"
+                <Link
+                  to="/terms-of-service"
                   className="hover:text-amber-400 transition-colors"
                 >
                   Terms of Service
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -151,25 +152,31 @@ const Footer = () => {
         <Separator className="my-8 bg-slate-700" />
 
         <div className="flex flex-col md:flex-row justify-between items-center">
-          <p className="text-gray-400 text-sm">
-            &copy; {new Date().getFullYear()} Nil's Kitchen. All rights
-            reserved.
-          </p>
+          <div className="flex flex-col items-center md:items-start">
+            <p className="text-gray-400 text-sm">
+              &copy; {new Date().getFullYear()} Bengal Bay. All rights
+              reserved.
+            </p>
+          </div>
+          <p className="text-gray-500 text-center text-xl mt-1">
+              Design by Soumik & Nilimesh
+            </p>
           <div className="flex gap-4 mt-4 md:mt-0">
-            <a
-              href="/privacy-policy"
+            <Link
+              to="/privacy-policy"
               className="text-gray-400 hover:text-amber-400 text-sm transition-colors"
             >
               Privacy Policy
-            </a>
-            <a
-              href="/terms-of-service"
+            </Link>
+            <Link
+              to="/terms-of-service"
               className="text-gray-400 hover:text-amber-400 text-sm transition-colors"
             >
               Terms of Service
-            </a>
+            </Link>
           </div>
         </div>
+        
       </div>
     </footer>
   );

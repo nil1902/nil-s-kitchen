@@ -5,6 +5,7 @@ import BookingHistory from "@/components/user/BookingHistory";
 import PaymentMethods from "@/components/user/PaymentMethods";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, useLocation } from "react-router-dom";
+import OrderReceipt from "./NotFound"; // Will be renamed to OrderReceipt
 
 function Profile() {
   const { currentUser, loading } = useAuth();

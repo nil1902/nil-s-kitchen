@@ -14,7 +14,7 @@ function PrivacyPolicy() {
 
         <h2 className="text-2xl font-semibold mt-8 mb-4">Introduction</h2>
         <p className="mb-4">
-          Nil's Kitchen ("we," "our," or "us") respects your privacy and is
+          Bengal Bay ("we," "our," or "us") respects your privacy and is
           committed to protecting it through our compliance with this policy.
         </p>
         <p className="mb-4">

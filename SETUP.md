@@ -1,4 +1,4 @@
-# Nil's Kitchen - Setup Instructions
+# Bengal Bay - Setup Instructions
 
 ## Prerequisites
 - Node.js (v16 or newer)

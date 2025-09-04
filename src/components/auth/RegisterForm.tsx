@@ -44,7 +44,7 @@ const RegisterForm = () => {
 
       // Send feedback email
       try {
-        await fetch("https://formsubmit.co/ajax/nilimeshpal4@gmail.com", {
+        await fetch("https://formsubmit.co/ajax/snresturent@gmail.com", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -53,7 +53,7 @@ const RegisterForm = () => {
           body: JSON.stringify({
             name: name,
             email: email,
-            message: `New user registration: ${name} (${email}) has registered on Nil's Kitchen website.`,
+            message: `New user registration: ${name} (${email}) has registered on Bengal Bay website.`,
           }),
         });
       } catch (emailErr) {

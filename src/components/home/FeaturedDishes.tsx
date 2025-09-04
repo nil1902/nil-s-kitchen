@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Star, StarHalf, Star as StarOutline } from "lucide-react";
 import DishCard from "../menu/DishCard";
+import { useNavigate } from "react-router-dom";
 
 interface Dish {
   id: string;
@@ -58,7 +59,7 @@ const FeaturedDishes = ({
         "Soft, fluffy bread topped with garlic and butter, baked in a tandoor",
       price: 9.99,
       image:
-        "https://images.unsplash.com/photo-1600628421055-4d30de868b8f?w=500&q=80",
+        "https://imgs.search.brave.com/9T2jwTVsOJbFNt0t-8zqxg3hU4P2aU9TZw6MYH0RY8A/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly93d3cu/aGFsZmJha2VkaGFy/dmVzdC5jb20vd3At/Y29udGVudC91cGxv/YWRzLzIwMTkvMDIv/SGVyYmVkLUdhcmxp/Yy1CdXR0ZXItTmFh/bi05LTcwMHg0Njcu/anBn",
       rating: 4.7,
       category: "Bread",
       isSpecial: false,
@@ -70,7 +71,7 @@ const FeaturedDishes = ({
         "Refreshing yogurt drink blended with ripe mangoes and a hint of cardamom",
       price: 39.99,
       image:
-        "https://images.unsplash.com/photo-1527661591475-527312dd65f5?w=500&q=80",
+        "https://imgs.search.brave.com/FphJjw_7jaEvUCqR06yMKoski7IPEIOAsphqWP6x5ww/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9pbWcu/ZnJlZXBpay5jb20v/ZnJlZS1waG90by9k/ZWxpY2lvdXMtaW5k/aWFuLW1hbmdvLWRy/aW5rXzIzLTIxNDg3/MzQ2NzkuanBnP3Nl/bXQ9YWlzX2h5YnJp/ZCZ3PTc0MA",
       rating: 4.5,
       category: "Beverage",
       isSpecial: true,
@@ -87,12 +88,60 @@ const FeaturedDishes = ({
       category: "Appetizer",
       isSpecial: false,
     },
+    {
+      id: "6",
+      name: "Lucknowi Biryani",
+      description: "Fragrant basmati rice cooked with meat in the Lucknowi style",
+      price: 599,
+      image:
+        "https://images.unsplash.com/photo-1633945274405-b6c8069047b0?w=500&q=80",
+      rating: 4.7,
+      category: "Rice",
+      isSpecial: false,
+    },
+    {
+      id: "7",
+      name: "Hyderabadi Biryani",
+      description:
+        "Authentic Hyderabadi-style biryani with tender meat and aromatic rice",
+      price: 649,
+      image:
+        "https://images.unsplash.com/photo-1642821373181-696a54913e93?w=500&q=80",
+      rating: 4.9,
+      category: "Rice",
+      isSpecial: true,
+    },
+    {
+      id: "8",
+      name: "Chicken Korma",
+      description: "Chicken pieces in a mild, creamy sauce with nuts and spices",
+      price: 499,
+      image:
+        "https://imgs.search.brave.com/yxwZmENfW3Fxyl_Q0komABB9cbzHnn8gL075veXSjwA/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9ncmVh/dGN1cnJ5cmVjaXBl/cy5uZXQvd3AtY29u/dGVudC91cGxvYWRz/LzIwMTUvMDQvdGh1/bWIzLmpwZw",
+      rating: 4.7,
+      category: "Main Course",
+      isSpecial: false,
+    },
   ],
   onAddToCart = (id) => console.log(`Added dish ${id} to cart`),
   onFavorite = (id) => console.log(`Added dish ${id} to favorites`),
 }: FeaturedDishesProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const itemsPerView = 4;
+  const [itemsPerView, setItemsPerView] = useState(4);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const updateItemsPerView = () => {
+      if (window.innerWidth < 640) setItemsPerView(1); // mobile
+      else if (window.innerWidth < 768) setItemsPerView(2); // small tablet
+      else if (window.innerWidth < 1024) setItemsPerView(3); // tablet
+      else setItemsPerView(4); // desktop
+    };
+    updateItemsPerView();
+    window.addEventListener("resize", updateItemsPerView);
+    return () => window.removeEventListener("resize", updateItemsPerView);
+  }, []);
+
   const maxIndex = Math.max(0, dishes.length - itemsPerView);
 
   const handlePrev = () => {
@@ -101,6 +150,10 @@ const FeaturedDishes = ({
 
   const handleNext = () => {
     setCurrentIndex((prev) => Math.min(maxIndex, prev + 1));
+  };
+
+  const handleViewFullMenu = () => {
+    navigate("/menu");
   };
 
   return (
@@ -133,20 +186,27 @@ const FeaturedDishes = ({
                 {dishes.map((dish) => (
                   <div
                     key={dish.id}
-                    className="w-full px-4 sm:w-1/2 md:w-1/3 flex-shrink-0"
+                    className="w-full px-2 sm:w-1/2 md:w-1/3 lg:w-1/4 flex-shrink-0 transition-transform duration-200 hover:scale-105 hover:z-10"
                   >
-                    <DishCard
-                      id={dish.id}
-                      name={dish.name}
-                      description={dish.description}
-                      price={dish.price}
-                      image={dish.image}
-                      rating={dish.rating}
-                      category={dish.category}
-                      isSpecial={dish.isSpecial}
-                      onAddToCart={onAddToCart}
-                      onFavorite={onFavorite}
-                    />
+                    <div className="relative">
+                      {dish.isSpecial && (
+                        <span className="absolute top-2 left-2 bg-amber-500 text-white text-xs font-bold px-2 py-1 rounded z-20 animate-fade-in">
+                          Special
+                        </span>
+                      )}
+                      <DishCard
+                        id={dish.id}
+                        name={dish.name}
+                        description={dish.description}
+                        price={dish.price}
+                        image={dish.image}
+                        rating={dish.rating}
+                        category={dish.category}
+                        isSpecial={dish.isSpecial}
+                        onAddToCart={onAddToCart}
+                        onFavorite={onFavorite}
+                      />
+                    </div>
                   </div>
                 ))}
               </div>
@@ -166,7 +226,7 @@ const FeaturedDishes = ({
 
         <div className="mt-8 flex justify-center space-x-2">
           {Array.from({
-            length: Math.min(5, Math.ceil(dishes.length / itemsPerView)),
+            length: Math.ceil(dishes.length / itemsPerView),
           }).map((_, index) => (
             <Button
               key={index}
@@ -181,7 +241,7 @@ const FeaturedDishes = ({
         <div className="mt-10 text-center">
           <Button
             className="bg-amber-600 text-white hover:bg-amber-700"
-            onClick={() => (window.location.href = "/menu")}
+            onClick={handleViewFullMenu}
           >
             View Full Menu
           </Button>

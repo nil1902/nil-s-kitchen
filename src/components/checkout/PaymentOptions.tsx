@@ -5,7 +5,6 @@ import { Separator } from "@/components/ui/separator";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCart } from "../cart/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
-import UpiPaymentForm from "./UpiPaymentForm";
 import CardPaymentForm from "./CardPaymentForm";
 import NetBankingForm from "./NetBankingForm";
 import CodPaymentForm from "./CodPaymentForm";
@@ -103,11 +102,11 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
     // Create email content with order details
     const emailContent = {
       to: userEmail,
-      subject: `Order Confirmation #${randomOrderId} - Nil's Kitchen`,
+              subject: `Order Confirmation #${randomOrderId} - Bengal Bay`,
       message: `
         Dear ${userName},
 
-        Thank you for your order at Nil's Kitchen!
+                  Thank you for your order at Bengal Bay!
 
         Order ID: ${randomOrderId}
         Date: ${new Date(orderDate).toLocaleString()}
@@ -134,16 +133,16 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
         Your order has been received and is being processed.
         You can track your order in the My Orders section of your profile.
 
-        Thank you for choosing Nil's Kitchen!
+                  Thank you for choosing Bengal Bay!
         
         Best regards,
-        The Nil's Kitchen Team
+                  The Bengal Bay Team
       `,
     };
 
     // Send confirmation email
     try {
-      fetch("https://formsubmit.co/ajax/nilimeshpal4@gmail.com", {
+      fetch("https://formsubmit.co/ajax/snresturent@gmail.com", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -217,7 +216,25 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
     switch (paymentMethod) {
       case "upi":
         return (
-          <UpiPaymentForm onSubmit={handlePaymentSubmit} amount={grandTotal} />
+          <div className="flex flex-col items-center gap-4 py-4">
+            <img
+              src="./assets/images/QR.webp"
+              alt="Scan to pay via UPI"
+              className="h-40 w-40 object-contain border rounded-lg shadow"
+            />
+            <div>
+              <span className="font-medium">UPI ID: </span>
+              <span className="bg-gray-100 px-2 py-1 rounded text-amber-700 select-all">9474748449@axl</span>
+            </div>
+            <p className="text-xs text-gray-500 mt-1">Scan the QR code or use the UPI ID above to pay the amount.</p>
+            <Button
+              type="submit"
+              className="w-full bg-amber-600 hover:bg-amber-700 text-white py-6 text-lg mt-4"
+              onClick={handlePaymentSubmit}
+            >
+              Pay ₹{grandTotal.toFixed(2)}
+            </Button>
+          </div>
         );
       case "card":
         return (
@@ -435,15 +452,7 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
                   </div>
                 </div>
                 {paymentMethod === "netbanking" && (
-                  <div className="mt-4">
-                    <Button
-                      type="submit"
-                      className="w-full bg-amber-600 hover:bg-amber-700 text-white py-6 text-lg"
-                      onClick={handlePaymentSubmit}
-                    >
-                      Pay ₹{grandTotal.toFixed(2)}
-                    </Button>
-                  </div>
+                  <div className="mt-4">{renderPaymentForm()}</div>
                 )}
               </div>
 
@@ -635,7 +644,7 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
                   Amount Paid: ₹{(cartTotal + cartTotal * 0.05 + 9).toFixed(2)}
                 </p>
                 <p>
-                  Payment Method:{" "}
+                  Payment Method: {" "}
                   {paymentMethod.charAt(0).toUpperCase() +
                     paymentMethod.slice(1)}
                 </p>

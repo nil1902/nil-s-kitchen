@@ -40,31 +40,46 @@ const BookingHistory = () => {
   const navigate = useNavigate();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(false);
 
-  // Fetch bookings from Firestore based on current user
+  // Show localStorage bookings immediately if available
   useEffect(() => {
-    const fetchBookings = async () => {
-      if (!currentUser) {
-        setLoading(false);
-        return;
-      }
-
+    if (!currentUser) {
+      setLoading(false);
+      return;
+    }
+    const userBookingsKey = `bookings_${currentUser.uid}`;
+    const storedBookings = localStorage.getItem(userBookingsKey);
+    if (storedBookings) {
       try {
-        setLoading(true);
-        // Query bookings collection for the current user
+        const parsedBookings = JSON.parse(storedBookings);
+        setBookings(parsedBookings);
+        setLoading(false);
+        setUpdating(true);
+        console.log("Loaded bookings from localStorage immediately:", parsedBookings);
+      } catch (err) {
+        console.error("Failed to parse bookings from localStorage", err);
+      }
+    }
+  }, [currentUser]);
+
+  // Fetch bookings from Firestore in the background
+  useEffect(() => {
+    if (!currentUser) return;
+    let isMounted = true;
+    const fetchBookings = async () => {
+      const start = Date.now();
+      try {
         const bookingsRef = collection(db, "bookings");
         const q = query(
           bookingsRef,
           where("userId", "==", currentUser.uid),
           orderBy("date", "desc"),
         );
-
         const querySnapshot = await getDocs(q);
         const userBookings: Booking[] = [];
-
         querySnapshot.forEach((doc) => {
           const bookingData = doc.data();
-          // Ensure we have the correct data structure
           userBookings.push({
             id: doc.id,
             date: bookingData.date || new Date().toISOString(),
@@ -79,30 +94,24 @@ const BookingHistory = () => {
             ...bookingData,
           } as Booking);
         });
-
-        console.log("Fetched bookings:", userBookings);
-        setBookings(userBookings);
-      } catch (error) {
-        console.error("Error fetching bookings:", error);
-        // Fallback to localStorage if Firestore fails
-        const storedBookings = localStorage.getItem(
-          `bookings_${currentUser.uid}`,
-        );
-        if (storedBookings) {
-          try {
-            const parsedBookings = JSON.parse(storedBookings);
-            setBookings(parsedBookings);
-            console.log("Using localStorage bookings:", parsedBookings);
-          } catch (err) {
-            console.error("Failed to parse bookings from localStorage", err);
-          }
+        console.log(`Fetched bookings from Firestore in ${Date.now() - start}ms:`, userBookings);
+        if (isMounted && userBookings.length > 0) {
+          setBookings(userBookings);
+          setUpdating(false);
+          // Update localStorage for next time
+          localStorage.setItem(`bookings_${currentUser.uid}`, JSON.stringify(userBookings));
+        } else if (isMounted) {
+          setUpdating(false);
         }
+      } catch (error) {
+        console.error("Error fetching bookings from Firestore:", error);
+        if (isMounted) setUpdating(false);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
-
     fetchBookings();
+    return () => { isMounted = false; };
   }, [currentUser]);
 
   const getStatusColor = (status: Booking["status"]) => {
@@ -157,7 +166,7 @@ const BookingHistory = () => {
     navigate(`/reservations?guests=${booking.guests}&time=${booking.time}`);
   };
 
-  if (loading) {
+  if (loading && bookings.length === 0) {
     return (
       <div className="container mx-auto py-10 px-4 text-center">
         <p>Loading your bookings...</p>
@@ -168,6 +177,9 @@ const BookingHistory = () => {
   return (
     <div className="container mx-auto py-10 px-4">
       <h1 className="text-3xl font-bold mb-6">My Bookings</h1>
+      {updating && (
+        <div className="text-xs text-gray-400 mb-2">Updating with latest data...</div>
+      )}
 
       {/* User Navigation Menu */}
       <div className="mb-6 flex flex-wrap gap-2">
@@ -260,7 +272,7 @@ const BookingHistory = () => {
                     </div>
                     <div className="flex items-center gap-2 md:col-span-2">
                       <MapPin className="h-5 w-5 text-gray-500" />
-                      <span>Nil's Kitchen, Shantipur, Station Rd, 741404</span>
+                      <span>Bengal Bay, Shantipur, Station Rd, 741404</span>
                     </div>
                   </div>
 

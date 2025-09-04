@@ -28,12 +28,12 @@ const Logo: React.FC<LogoProps> = ({
     <Link
       to="/"
       className={`flex items-center ${className}`}
-      aria-label="Nil's Kitchen Home"
+              aria-label="Bengal Bay Home"
     >
       <div className="flex items-center">
         <img
-          src="/assets/images/logo/nils-kitchen-logo.svg"
-          alt="Nil's Kitchen Logo"
+          src="./assets/images/logo/nils-kitchen-logo.svg"
+          alt="Bengal Bay Logo"
           className={`h-auto ${size === "sm" ? "w-24" : size === "md" ? "w-32" : "w-40"}`}
         />
       </div>

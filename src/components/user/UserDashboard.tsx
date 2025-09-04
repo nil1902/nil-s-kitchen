@@ -79,24 +79,48 @@ const UserDashboard = () => {
         value={activeTab}
         onValueChange={setActiveTab}
       >
-        <TabsList className="grid w-full grid-cols-4 mb-8">
-          <TabsTrigger value="profile" className="flex items-center gap-2">
-            <User className="h-4 w-4" />
-            Profile
-          </TabsTrigger>
-          <TabsTrigger value="orders" className="flex items-center gap-2">
-            <Package className="h-4 w-4" />
-            Orders
-          </TabsTrigger>
-          <TabsTrigger value="bookings" className="flex items-center gap-2">
-            <Calendar className="h-4 w-4" />
-            Bookings
-          </TabsTrigger>
-          <TabsTrigger value="payment" className="flex items-center gap-2">
-            <CreditCard className="h-4 w-4" />
-            Payment Methods
-          </TabsTrigger>
-        </TabsList>
+        <div className="mb-8">
+          <div className="relative">
+            <div className="scroll-fade-left"></div>
+            <div className="scroll-fade-right"></div>
+            <div className="flex overflow-x-auto scrollbar-hide pb-2 gap-2">
+              <TabsList className="flex w-full min-w-max space-x-2 bg-transparent">
+              <TabsTrigger 
+                value="profile" 
+                className="flex items-center gap-2 whitespace-nowrap px-3 sm:px-4 py-2 bg-white border rounded-md hover:bg-gray-50 data-[state=active]:bg-amber-600 data-[state=active]:text-white transition-colors duration-200"
+              >
+                <User className="h-4 w-4" />
+                <span className="hidden sm:inline">Profile</span>
+                <span className="sm:hidden">Profile</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="orders" 
+                className="flex items-center gap-2 whitespace-nowrap px-3 sm:px-4 py-2 bg-white border rounded-md hover:bg-gray-50 data-[state=active]:bg-amber-600 data-[state=active]:text-white transition-colors duration-200"
+              >
+                <Package className="h-4 w-4" />
+                <span className="hidden sm:inline">Orders</span>
+                <span className="sm:hidden">Orders</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="bookings" 
+                className="flex items-center gap-2 whitespace-nowrap px-3 sm:px-4 py-2 bg-white border rounded-md hover:bg-gray-50 data-[state=active]:bg-amber-600 data-[state=active]:text-white transition-colors duration-200"
+              >
+                <Calendar className="h-4 w-4" />
+                <span className="hidden sm:inline">Bookings</span>
+                <span className="sm:hidden">Bookings</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="payment" 
+                className="flex items-center gap-2 whitespace-nowrap px-3 sm:px-4 py-2 bg-white border rounded-md hover:bg-gray-50 data-[state=active]:bg-amber-600 data-[state=active]:text-white transition-colors duration-200"
+              >
+                <CreditCard className="h-4 w-4" />
+                <span className="hidden sm:inline">Payment Methods</span>
+                <span className="sm:hidden">Payment</span>
+              </TabsTrigger>
+            </TabsList>
+          </div>
+        </div>
+      </div>
 
         <TabsContent value="profile">
           <Card>

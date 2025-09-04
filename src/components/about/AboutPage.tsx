@@ -19,7 +19,7 @@ const AboutPage = () => {
         </div>
         <div className="relative h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center text-white text-center">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
-            About Nil's Kitchen
+            About Bengal Bay
           </h1>
           <p className="text-lg md:text-xl max-w-2xl">
             Our journey from a small family restaurant to a beloved culinary
@@ -35,7 +35,7 @@ const AboutPage = () => {
             <h2 className="text-3xl font-bold text-gray-900 mb-6">Our Story</h2>
             <div className="space-y-4 text-gray-600">
               <p>
-                Nil's Kitchen was founded in 2010 by Chef Nilesh Kumar with a
+                Bengal Bay was founded in 2010 by Chef Nilesh Kumar with a
                 simple mission: to share authentic flavors and create memorable
                 dining experiences for every guest.
               </p>
@@ -51,7 +51,7 @@ const AboutPage = () => {
                 innovation, and passion for exceptional food.
               </p>
               <p>
-                Today, Nil's Kitchen continues to be a family-owned
+                Today, Bengal Bay continues to be a family-owned
                 establishment where every customer is treated like a part of our
                 extended family. We take pride in creating a warm, inviting
                 atmosphere where memories are made around the table.
@@ -98,7 +98,7 @@ const AboutPage = () => {
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">Our Values</h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            The principles that guide everything we do at Nil's Kitchen
+            The principles that guide everything we do at Bengal Bay
           </p>
         </div>
 
@@ -240,7 +240,7 @@ const AboutPage = () => {
             <p className="text-amber-600 mb-2">Pastry Chef</p>
             <p className="text-gray-600 max-w-xs mx-auto">
               Meera's creative desserts provide the perfect sweet ending to
-              every meal at Nil's Kitchen.
+              every meal at Bengal Bay.
             </p>
           </div>
         </div>
@@ -339,7 +339,7 @@ const AboutPage = () => {
             </h2>
             <div className="space-y-4 text-gray-600">
               <p>
-                At Nil's Kitchen, we believe that food is more than just
+                At Bengal Bay, we believe that food is more than just
                 sustenance—it's an experience that brings people together and
                 creates lasting memories.
               </p>
@@ -356,7 +356,7 @@ const AboutPage = () => {
                 to maintain their aromatic potency.
               </p>
               <p>
-                Each dish at Nil's Kitchen tells a story—of heritage, of
+                Each dish at Bengal Bay tells a story—of heritage, of
                 passion, and of the diverse culinary traditions that inspire us.
                 We invite you to be part of this story and experience the magic
                 that happens when exceptional food is served with genuine

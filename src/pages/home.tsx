@@ -1,5 +1,6 @@
 import React from "react";
 import HeroBanner from "@/components/home/HeroBanner";
+import TestimonialsSection from "@/components/home/TestimonialsSection";
 import IntroSection from "@/components/home/IntroSection";
 import FeaturedDishes from "@/components/home/FeaturedDishes";
 
@@ -9,6 +10,7 @@ function Home() {
       <HeroBanner />
       <IntroSection />
       <FeaturedDishes />
+      <TestimonialsSection />
     </div>
   );
 }

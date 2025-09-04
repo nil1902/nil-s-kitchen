@@ -37,9 +37,9 @@ export function urlToFilename(url: string): string {
   const parts = url.split("/");
   const lastPart = parts[parts.length - 1].split("?")[0];
 
-  // If there's no extension, add .jpg
+  // If there's no extension, add .webp
   if (!lastPart.includes(".")) {
-    return `${lastPart}.jpg`;
+    return `${lastPart}.webp`;
   }
 
   return lastPart;

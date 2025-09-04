@@ -45,16 +45,33 @@ const OrderHistory = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch orders from Firestore based on current user
+  // Show localStorage orders immediately if available
   useEffect(() => {
-    const fetchOrders = async () => {
-      if (!currentUser) {
-        setLoading(false);
-        return;
-      }
-
+    if (!currentUser) {
+      setLoading(false);
+      return;
+    }
+    const userOrdersKey = `orders_${currentUser.uid}`;
+    const storedOrders = localStorage.getItem(userOrdersKey);
+    if (storedOrders) {
       try {
-        setLoading(true);
+        const parsedOrders = JSON.parse(storedOrders);
+        setOrders(parsedOrders);
+        setLoading(false);
+        console.log("Loaded orders from localStorage immediately:", parsedOrders);
+      } catch (err) {
+        console.error("Failed to parse orders from localStorage", err);
+      }
+    }
+  }, [currentUser]);
+
+  // Fetch orders from Firestore in the background
+  useEffect(() => {
+    if (!currentUser) return;
+    let isMounted = true;
+    const fetchOrders = async () => {
+      const start = Date.now();
+      try {
         // Query orders collection for the current user
         const ordersRef = collection(db, "orders");
         const q = query(
@@ -62,13 +79,10 @@ const OrderHistory = () => {
           where("userId", "==", currentUser.uid),
           orderBy("date", "desc"),
         );
-
         const querySnapshot = await getDocs(q);
         const userOrders: Order[] = [];
-
         querySnapshot.forEach((doc) => {
           const orderData = doc.data();
-          // Ensure we have the correct data structure
           userOrders.push({
             id: orderData.id || doc.id,
             date: orderData.date || new Date().toISOString(),
@@ -80,28 +94,20 @@ const OrderHistory = () => {
             ...orderData,
           } as Order);
         });
-
-        console.log("Fetched orders:", userOrders);
-        setOrders(userOrders);
-      } catch (error) {
-        console.error("Error fetching orders:", error);
-        // Fallback to localStorage if Firestore fails
-        const storedOrders = localStorage.getItem(`orders_${currentUser.uid}`);
-        if (storedOrders) {
-          try {
-            const parsedOrders = JSON.parse(storedOrders);
-            setOrders(parsedOrders);
-            console.log("Using localStorage orders:", parsedOrders);
-          } catch (err) {
-            console.error("Failed to parse orders from localStorage", err);
-          }
+        console.log(`Fetched orders from Firestore in ${Date.now() - start}ms:`, userOrders);
+        if (isMounted && userOrders.length > 0) {
+          setOrders(userOrders);
+          // Update localStorage for next time
+          localStorage.setItem(`orders_${currentUser.uid}`, JSON.stringify(userOrders));
         }
+      } catch (error) {
+        console.error("Error fetching orders from Firestore:", error);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
-
     fetchOrders();
+    return () => { isMounted = false; };
   }, [currentUser]);
 
   const getStatusColor = (status: Order["status"]) => {
@@ -226,7 +232,7 @@ const OrderHistory = () => {
                         <p className="text-xs text-gray-500">
                           Purchased on:{" "}
                           {new Date(
-                            item.purchaseTime || order.date,
+                            order.date,
                           ).toLocaleString()}
                         </p>
                       </div>

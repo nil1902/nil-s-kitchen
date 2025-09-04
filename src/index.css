@@ -44,3 +44,75 @@
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slide-in-down {
+  from { opacity: 0; transform: translateY(-40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slide-in-left {
+  from { opacity: 0; transform: translateX(-30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.8s ease both;
+}
+.animate-slide-in-down {
+  animation: slide-in-down 0.5s cubic-bezier(0.4,0,0.2,1) both;
+}
+.animate-slide-in-left {
+  animation: slide-in-left 0.7s cubic-bezier(0.4,0,0.2,1) both;
+}
+.animate-slide-in-right {
+  animation: slide-in-right 0.7s cubic-bezier(0.4,0,0.2,1) both;
+}
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient 6s ease-in-out infinite;
+}
+
+/* Hide scrollbar for mobile sliding tabs */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Safari and Chrome */
+}
+
+/* Gradient fade effect for horizontal scrolling */
+.scroll-fade-left {
+  background: linear-gradient(to right, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 20px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.scroll-fade-right {
+  background: linear-gradient(to left, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 20px;
+  pointer-events: none;
+  z-index: 10;
+}

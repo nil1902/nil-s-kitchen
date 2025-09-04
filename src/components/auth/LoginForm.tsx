@@ -62,7 +62,7 @@ const LoginForm = () => {
       <Card className="w-full max-w-md bg-white">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">
-            Login to Nil's Kitchen
+            Login to Bengal Bay
           </CardTitle>
           <CardDescription className="text-center">
             Enter your email and password to access your account

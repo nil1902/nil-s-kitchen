@@ -37,7 +37,7 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const timeSlots = [
@@ -177,7 +177,7 @@ const ReservationPage = () => {
         userId: currentUser?.uid || "guest-user",
         userEmail: email || "guest@example.com",
         timestamp: new Date().toISOString(),
-        restaurantName: "Nil's Kitchen",
+        restaurantName: "Bengal Bay",
         restaurantAddress:
           "Shantipur, Landmark Station Rd, PIN: 741404, Dist Nadia, West Bengal, India",
         restaurantPhone: "(555) 123-4567",
@@ -202,12 +202,12 @@ const ReservationPage = () => {
 
       // Send actual email using FormSubmit service
       const emailContent = {
-        to: email || "nilimeshpal4@gmail.com", // Default to restaurant owner's email
-        subject: `✨ Your Table is Reserved! Confirmation #${newBookingId} - Nil's Kitchen`,
+        to: email || "snresturent@gmail.com", // Default to restaurant owner's email
+        subject: `✨ Your Table is Reserved! Confirmation #${newBookingId} - Bengal Bay`,
         message: `
           Dear ${name || "Guest"},
 
-          🎉 Your table has been successfully reserved at Nil's Kitchen! 🎉
+                      🎉 Your table has been successfully reserved at Bengal Bay! 🎉
 
           📋 Reservation Details:
           ------------------------------------------
@@ -219,7 +219,7 @@ const ReservationPage = () => {
 
           🏠 Restaurant Information:
           ------------------------------------------
-          Nil's Kitchen
+                      Bengal Bay
           Shantipur, Landmark Station Rd
           PIN: 741404, Dist Nadia
           West Bengal, India
@@ -230,9 +230,9 @@ const ReservationPage = () => {
           Need to make changes? Please call us at (555) 123-4567.
 
           Warm regards,
-          The Nil's Kitchen Team
+                      The Bengal Bay Team
           
-          🌟 Thank you for choosing Nil's Kitchen! 🌟
+                      🌟 Thank you for choosing Bengal Bay! 🌟
         `,
       };
       console.log("Sending email to:", emailContent.to);
@@ -240,7 +240,7 @@ const ReservationPage = () => {
       try {
         // Actually send the email using FormSubmit
         const emailResponse = await fetch(
-          "https://formsubmit.co/ajax/nilimeshpal4@gmail.com",
+          "https://formsubmit.co/ajax/snresturent@gmail.com",
           {
             method: "POST",
             headers: {
@@ -332,7 +332,7 @@ const ReservationPage = () => {
             Reserve Your Table
           </h1>
           <p className="text-lg md:text-xl max-w-2xl">
-            Book your dining experience at Nil's Kitchen and enjoy our
+            Book your dining experience at Bengal Bay and enjoy our
             exceptional cuisine and service
           </p>
         </div>
@@ -500,16 +500,16 @@ const ReservationPage = () => {
 
               {!currentUser && (
                 <p className="text-sm text-gray-500 text-center mt-2">
-                  <a href="/login" className="text-amber-600 hover:underline">
+                  <Link to="/login" className="text-amber-600 hover:underline">
                     Sign in
-                  </a>{" "}
+                  </Link>{" "}
                   or{" "}
-                  <a
-                    href="/register"
+                  <Link
+                    to="/register"
                     className="text-amber-600 hover:underline"
                   >
                     create an account
-                  </a>{" "}
+                  </Link>{" "}
                   to manage your reservations
                 </p>
               )}
@@ -567,7 +567,7 @@ const ReservationPage = () => {
                     <p className="text-gray-600">
                       We offer private dining rooms for special events. Contact
                       us for more information about hosting your next
-                      celebration at Nil's Kitchen.
+                      celebration at Bengal Bay.
                     </p>
                   </div>
                 </div>
@@ -597,7 +597,7 @@ const ReservationPage = () => {
               Your Table is Reserved! 🎉
             </DialogTitle>
             <DialogDescription className="text-amber-700">
-              We're excited to welcome you to Nil's Kitchen!
+              We're excited to welcome you to Bengal Bay!
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col items-center py-6">

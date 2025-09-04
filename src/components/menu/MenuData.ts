@@ -99,7 +99,7 @@ export const menuItems: MenuItem[] = [
     description: "Potatoes and cauliflower cooked with Indian spices",
     price: 349,
     image:
-      "https://images.unsplash.com/photo-1645177628172-a94c1f96e6db?w=500&q=80",
+      "https://imgs.search.brave.com/_LhDAJs6VjMIJR-wkEKVPMlfzLlxJVd_jIsqM0d13xI/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly93d3cu/b2xpdmVhbmRtYW5n/by5jb20vaW1hZ2Vz/L3VwbG9hZHMvMjAy/Ml8wM18yMl9hbG9v/X2dvYmlfMi5qcGc",
     rating: 4.3,
     category: "Main Course",
     type: "veg",
@@ -162,7 +162,7 @@ export const menuItems: MenuItem[] = [
     description: "Chicken pieces in a mild, creamy sauce with nuts and spices",
     price: 499,
     image:
-      "https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=500&q=80",
+      "https://imgs.search.brave.com/yxwZmENfW3Fxyl_Q0komABB9cbzHnn8gL075veXSjwA/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9ncmVh/dGN1cnJ5cmVjaXBl/cy5uZXQvd3AtY29u/dGVudC91cGxvYWRz/LzIwMTUvMDQvdGh1/bWIzLmpwZw",
     rating: 4.7,
     category: "Main Course",
     type: "non-veg",
@@ -187,7 +187,7 @@ export const menuItems: MenuItem[] = [
     description: "Succulent prawns cooked in a spicy tomato-based sauce",
     price: 649,
     image:
-      "https://images.unsplash.com/photo-1589647363585-f4a7d3877b10?w=500&q=80",
+      "https://imgs.search.brave.com/jvdmz2aeFWSziZorU88BmI1XyM6sUcn1603VQNTNZkE/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9zdGF0/aWMudmVjdGVlenku/Y29tL3N5c3RlbS9y/ZXNvdXJjZXMvdGh1/bWJuYWlscy8wNTQv/ODg0LzgxOC9zbWFs/bC9pbmRpYW4tcHJh/d24tbWFzYWxhLXdp/dGgtc3BpY2VzLXBo/b3RvLmpwZw",
     rating: 4.6,
     category: "Main Course",
     type: "non-veg",
@@ -202,7 +202,7 @@ export const menuItems: MenuItem[] = [
       "Fragrant basmati rice cooked with tender chicken and aromatic spices",
     price: 499,
     image:
-      "https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=500&q=80",
+      "https://imgs.search.brave.com/lhh4o5f4L-B4EqpA_mTfUF4UDBsA_-LSbDK2SEhpEvw/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9pbWcu/ZnJlZXBpay5jb20v/cHJlbWl1bS1waG90/by9kdW0taGFuZGkt/Y2hpY2tlbi1iaXJ5/YW5pLWlzLXByZXBh/cmVkLWVhcnRoZW4t/Y2xheS1wb3QtY2Fs/bGVkLWhhYW5kaS1w/b3B1bGFyLWluZGlh/bi1ub24tdmVnZXRh/cmlhbi1mb29kXzQ2/NjY4OS01MjI1NC5q/cGc_c2VtdD1haXNf/aHlicmlkJnc9NzQw",
     rating: 4.7,
     category: "Rice",
     type: "biryani",
@@ -281,7 +281,7 @@ export const menuItems: MenuItem[] = [
       "Soft, fluffy bread topped with garlic and butter, baked in a tandoor",
     price: 99,
     image:
-      "https://images.unsplash.com/photo-1600628421055-4d30de868b8f?w=500&q=80",
+      "https://imgs.search.brave.com/9T2jwTVsOJbFNt0t-8zqxg3hU4P2aU9TZw6MYH0RY8A/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly93d3cu/aGFsZmJha2VkaGFy/dmVzdC5jb20vd3At/Y29udGVudC91cGxv/YWRzLzIwMTkvMDIv/SGVyYmVkLUdhcmxp/Yy1CdXR0ZXItTmFh/bi05LTcwMHg0Njcu/anBn",
     rating: 4.7,
     category: "Bread",
     type: "bread",
@@ -293,7 +293,7 @@ export const menuItems: MenuItem[] = [
     description: "Soft, fluffy bread brushed with butter, baked in a tandoor",
     price: 89,
     image:
-      "https://images.unsplash.com/photo-1600628421055-4d30de868b8f?w=500&q=80",
+      "https://imgs.search.brave.com/gwTK_GNgAbVWhsuKSJlSx16ug0LfKemnmwKtUhVSS2c/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9tZWRp/YS5nZXR0eWltYWdl/cy5jb20vaWQvMTQ0/MDUyMzE0MS9waG90/by9ob21lbWFkZS1u/YWFuLWJyZWFkcy13/aXRoLWN1cnJ5LWFu/ZC1oZXJicy5qcGc_/cz02MTJ4NjEyJnc9/MCZrPTIwJmM9d0xm/c2RKZC1tcTN2bV9s/QUZMVFNvYnpkSktT/SzEteHRuaTlEY0xN/R3Rydz0",
     rating: 4.6,
     category: "Bread",
     type: "bread",
@@ -305,7 +305,7 @@ export const menuItems: MenuItem[] = [
     description: "Whole wheat bread baked in a tandoor",
     price: 49,
     image:
-      "https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=500&q=80",
+      "https://imgs.search.brave.com/B_6J7J5MbZXyMQOli46X8FyAtWP3tiSspNOMXldbDn0/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9odW5n/ZXJlbmQuY29tL3dw/LWNvbnRlbnQvdXBs/b2Fkcy8yMDIyLzAz/L3BsYWluLXJvdGkt/bWluLmpwZw",
     rating: 4.5,
     category: "Bread",
     type: "bread",
@@ -317,7 +317,7 @@ export const menuItems: MenuItem[] = [
     description: "Soft, fluffy bread stuffed with cheese, baked in a tandoor",
     price: 149,
     image:
-      "https://images.unsplash.com/photo-1600628421055-4d30de868b8f?w=500&q=80",
+      "https://imgs.search.brave.com/QjHMBK30Y23oPqTWsFLbP1B6IPWg7CVoOYc-e3JPKt0/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9pbWcu/ZnJlZXBpay5jb20v/cHJlbWl1bS1waG90/by9uYWFuLWZpbGxl/ZC13aXRoLWNoZWVz/ZS1waG90b18xMDM2/OTk4LTI4Nzg2OC5q/cGc_c2VtdD1haXNf/aHlicmlk",
     rating: 4.8,
     category: "Bread",
     type: "bread",
@@ -368,7 +368,7 @@ export const menuItems: MenuItem[] = [
     description: "Crispy onion fritters spiced with Indian herbs",
     price: 129,
     image:
-      "https://images.unsplash.com/photo-1601050690597-df0568f70950?w=500&q=80",
+      "https://imgs.search.brave.com/hKq064t37OC810BPI_poB7vzfObUF9c6YX2YwrVeleM/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9tZWRp/YS5nZXR0eWltYWdl/cy5jb20vaWQvNDg2/NTYwMzAxL3Bob3Rv/L29uaW9uLWJoYWpp/YS1mcmllZC1pbmRp/YS1zbmFjay5qcGc_/cz02MTJ4NjEyJnc9/MCZrPTIwJmM9Qmhh/N3hYX1FfUkZPRjBJ/WDR3V2JON1FXdUQ3/dWtsUzZFUVdJcjJP/dy0xOD0",
     rating: 4.3,
     category: "Appetizer",
     type: "starter",
@@ -380,7 +380,7 @@ export const menuItems: MenuItem[] = [
     description: "Spiced chicken fritters deep-fried to perfection",
     price: 249,
     image:
-      "https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=500&q=80",
+      "https://imgs.search.brave.com/fuscFhtsuGERBxNheAbvWbxO-OoMAip7e5Ex4O_aPpE/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9ibG9n/Z2VyLmdvb2dsZXVz/ZXJjb250ZW50LmNv/bS9pbWcvYi9SMjl2/WjJ4bC9BVnZYc0Vo/S1B3NW9VRDNIQVMx/LVhpdkdocW9pRDFp/WmU4Ym05SDdaSU1r/dXBUbE1MNFBzVFZX/ZDJsMXIxN3o3aUFj/bVRrWWJJSWJNOWZn/WklKSml1enp3dHRi/amhXaGcwNDRXT09B/bTBRUEF0RnhIMW1H/emZQbHF1dzhYbFMw/ME9RTWdIWDgyXy0z/Y2N5U1ZmN0UvZC9l/YXN5LWNoaWNrZW4t/cGFrb3JhLmpwZw",
     rating: 4.6,
     category: "Appetizer",
     type: "starter",
@@ -407,7 +407,7 @@ export const menuItems: MenuItem[] = [
       "Refreshing yogurt drink blended with ripe mangoes and a hint of cardamom",
     price: 149,
     image:
-      "https://images.unsplash.com/photo-1527661591475-527312dd65f5?w=500&q=80",
+      "https://imgs.search.brave.com/FphJjw_7jaEvUCqR06yMKoski7IPEIOAsphqWP6x5ww/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9pbWcu/ZnJlZXBpay5jb20v/ZnJlZS1waG90by9k/ZWxpY2lvdXMtaW5k/aWFuLW1hbmdvLWRy/aW5rXzIzLTIxNDg3/MzQ2NzkuanBnP3Nl/bXQ9YWlzX2h5YnJp/ZCZ3PTc0MA",
     rating: 4.7,
     category: "Beverage",
     type: "drinks",
@@ -443,7 +443,7 @@ export const menuItems: MenuItem[] = [
     description: "Fresh watermelon juice, perfect for hot summer days",
     price: 129,
     image:
-      "https://images.unsplash.com/photo-1563227812-0ea4c22e6cc8?w=500&q=80",
+      "https://imgs.search.brave.com/ji47GQFnVdnjkKqiy9nKdvjyZbDMsyMsbNHhAiCoARE/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9pbWcu/ZnJlZXBpay5jb20v/ZnJlZS1waG90by9j/bG9zZS11cC13YXRl/cm1lbG9uLWp1aWNl/LWdsYXNzLXBsYXRl/XzIzLTIxNDgyOTM4/MzkuanBnP3NlbXQ9/YWlzX2h5YnJpZCZ3/PTc0MA",
     rating: 4.5,
     category: "Beverage",
     type: "drinks",
@@ -455,7 +455,7 @@ export const menuItems: MenuItem[] = [
     description: "Chilled milk flavored with rose syrup",
     price: 129,
     image:
-      "https://images.unsplash.com/photo-1527661591475-527312dd65f5?w=500&q=80",
+      "https://imgs.search.brave.com/iiYYK-UEhJXhlcT7wWrtoUBN9m0Ku85ni2DdTpI9mCI/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9pbWcu/ZnJlZXBpay5jb20v/ZnJlZS1waG90by9w/aW5rLWNvb2tpZS1t/aWxrLXNoYWtlLXRv/d2VsLW1hcmJsZS1i/YWNrZ3JvdW5kLWhp/Z2gtcXVhbGl0eS1w/aG90b18xMTQ1Nzkt/MzY0OTQuanBnP3Nl/bXQ9YWlzX2h5YnJp/ZCZ3PTc0MA",
     rating: 4.3,
     category: "Beverage",
     type: "drinks",
@@ -467,7 +467,7 @@ export const menuItems: MenuItem[] = [
     description: "Traditional yogurt drink sweetened with sugar",
     price: 99,
     image:
-      "https://images.unsplash.com/photo-1527661591475-527312dd65f5?w=500&q=80",
+      "https://imgs.search.brave.com/NFVS9CQMrLCoIsProych8juGpPRYQPZrKT50hEXQ80w/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9pbWcu/ZnJlZXBpay5jb20v/ZnJlZS1waG90by9k/ZWxpY2lvdXMtaW5k/aWFuLWRyaW5rcy1h/cnJhbmdlbWVudF8y/My0yMTQ5MzEyMzgy/LmpwZz9zZW10PWFp/c19pdGVtc19ib29z/dGVkJnc9NzQw",
     rating: 4.5,
     category: "Beverage",
     type: "drinks",
@@ -479,7 +479,7 @@ export const menuItems: MenuItem[] = [
     description: "Thick milkshake made with fresh mangoes",
     price: 149,
     image:
-      "https://images.unsplash.com/photo-1527661591475-527312dd65f5?w=500&q=80",
+      "https://imgs.search.brave.com/imxvyMf3OKibik4ZWVZ1-CGqLsj2JVEepuUGwvU792I/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMucGV4ZWxzLmNv/bS9waG90b3MvODIx/MTE3OS9wZXhlbHMt/cGhvdG8tODIxMTE3/OS5qcGVnP2F1dG89/Y29tcHJlc3MmY3M9/dGlueXNyZ2ImZHBy/PTEmdz01MDA",
     rating: 4.7,
     category: "Beverage",
     type: "drinks",
@@ -494,7 +494,7 @@ export const menuItems: MenuItem[] = [
       "Soft milk solids dumplings soaked in rose-flavored sugar syrup",
     price: 149,
     image:
-      "https://images.unsplash.com/photo-1601303516361-9e7a1e01a7ea?w=500&q=80",
+      "https://imgs.search.brave.com/bA0U3RmMRHT2wzdRMryi1AHfEcw-OEYO7BSCpiQJGTI/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMucGV4ZWxzLmNv/bS9waG90b3MvNzQ0/OTEwNS9wZXhlbHMt/cGhvdG8tNzQ0OTEw/NS5qcGVnP2F1dG89/Y29tcHJlc3MmY3M9/dGlueXNyZ2ImZHBy/PTEmdz01MDA",
     rating: 4.8,
     category: "Dessert",
     type: "dessert",
@@ -507,7 +507,7 @@ export const menuItems: MenuItem[] = [
       "Soft cottage cheese patties soaked in sweetened, thickened milk",
     price: 199,
     image:
-      "https://images.unsplash.com/photo-1605197161470-5d2a9af0c3a3?w=500&q=80",
+      "https://imgs.search.brave.com/0e57jFeIrbaBdcqrFp2zTq_2IJ8JON55tAS3q8wKQVk/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWcu/ZnJlZXBpay5jb20v/cHJlbWl1bS1waG90/by9hbmdvb3JpLXJh/c21hbGFpLWlzLWlu/ZGlhbi1kZXNzZXJ0/LXN3ZWV0LXdpdGgt/ZHJ5LWZydWl0cy1z/YWZmcm9uLXRvcHBp/bmdzLXNlcnZlZC1i/b3dsLW1vb2R5LWJh/Y2tncm91bmQtc2Vs/ZWN0aXZlLWZvY3Vz/XzQ2NjY4OS01ODc4/MC5qcGc_c2VtdD1h/aXNfaHlicmlk",
     rating: 4.7,
     category: "Dessert",
     type: "dessert",
@@ -544,7 +544,7 @@ export const menuItems: MenuItem[] = [
     description: "Crispy, syrup-soaked sweet pretzel-like dessert",
     price: 129,
     image:
-      "https://images.unsplash.com/photo-1601303516361-9e7a1e01a7ea?w=500&q=80",
+      "https://cdn.pixabay.com/photo/2015/06/23/05/23/fresh-jalebi-818316_1280.jpg",
     rating: 4.6,
     category: "Dessert",
     type: "dessert",
@@ -556,7 +556,7 @@ export const menuItems: MenuItem[] = [
     description: "Sweet carrot pudding garnished with nuts",
     price: 149,
     image:
-      "https://images.unsplash.com/photo-1633436375153-d7045cb93e38?w=500&q=80",
+      "https://img.freepik.com/free-photo/traditional-azerbaijan-indian-turkish-sweet-dessert-halvah-with-nuts-top_114579-1310.jpg?t=st=1752250107~exp=1752253707~hmac=9e699f5965b47807c488c2c87ebcfec11f533a8dc4f87d42dcb8145c564e8016&w=740",
     rating: 4.7,
     category: "Dessert",
     type: "dessert",

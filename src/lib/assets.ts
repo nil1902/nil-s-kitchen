@@ -1,4 +1,4 @@
-// Image assets for Nil's Kitchen website
+// Image assets for Bengal Bay website
 
 export const images = {
   // Home page images

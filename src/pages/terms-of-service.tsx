@@ -14,7 +14,7 @@ function TermsOfService() {
 
         <h2 className="text-2xl font-semibold mt-8 mb-4">Agreement to Terms</h2>
         <p className="mb-4">
-          By accessing or using Nil's Kitchen website, you agree to be bound by
+          By accessing or using Bengal Bay website, you agree to be bound by
           these Terms of Service and all applicable laws and regulations. If you
           do not agree with any of these terms, you are prohibited from using or
           accessing this site.
@@ -23,7 +23,7 @@ function TermsOfService() {
         <h2 className="text-2xl font-semibold mt-8 mb-4">Use License</h2>
         <p className="mb-4">
           Permission is granted to temporarily download one copy of the
-          materials on Nil's Kitchen's website for personal, non-commercial
+                      materials on Bengal Bay's website for personal, non-commercial
           transitory viewing only. This is the grant of a license, not a
           transfer of title, and under this license you may not:
         </p>
@@ -32,7 +32,7 @@ function TermsOfService() {
           <li>Use the materials for any commercial purpose;</li>
           <li>
             Attempt to decompile or reverse engineer any software contained on
-            Nil's Kitchen's website;
+            Bengal Bay's website;
           </li>
           <li>
             Remove any copyright or other proprietary notations from the
@@ -46,8 +46,8 @@ function TermsOfService() {
 
         <h2 className="text-2xl font-semibold mt-8 mb-4">Disclaimer</h2>
         <p className="mb-4">
-          The materials on Nil's Kitchen's website are provided on an 'as is'
-          basis. Nil's Kitchen makes no warranties, expressed or implied, and
+                      The materials on Bengal Bay's website are provided on an 'as is'
+            basis. Bengal Bay makes no warranties, expressed or implied, and
           hereby disclaims and negates all other warranties including, without
           limitation, implied warranties or conditions of merchantability,
           fitness for a particular purpose, or non-infringement of intellectual
@@ -56,11 +56,11 @@ function TermsOfService() {
 
         <h2 className="text-2xl font-semibold mt-8 mb-4">Limitations</h2>
         <p className="mb-4">
-          In no event shall Nil's Kitchen or its suppliers be liable for any
+                      In no event shall Bengal Bay or its suppliers be liable for any
           damages (including, without limitation, damages for loss of data or
           profit, or due to business interruption) arising out of the use or
-          inability to use the materials on Nil's Kitchen's website, even if
-          Nil's Kitchen or a Nil's Kitchen authorized representative has been
+                      inability to use the materials on Bengal Bay's website, even if
+            Bengal Bay or a Bengal Bay authorized representative has been
           notified orally or in writing of the possibility of such damage.
         </p>
 
