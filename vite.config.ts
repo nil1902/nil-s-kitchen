@@ -12,7 +12,7 @@ if (process.env.TEMPO === "true") {
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: "/nil-s-kitchen/", // Correct for GitHub Pages
+  base: "/", // Use "/" for Vercel hosting
   optimizeDeps: {
     entries: ["src/main.tsx", "src/tempobook/**/*"],
     include: [
