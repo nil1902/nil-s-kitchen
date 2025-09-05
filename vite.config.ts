@@ -12,11 +12,7 @@ if (process.env.TEMPO === "true") {
 
 // https://vitejs.dev/config/
 export default defineConfig({
-<<<<<<< HEAD
   base: "/nil-s-kitchen/", // Correct for Vercel
-=======
-  base: "/BengalBay/", // Correct for Vercel
->>>>>>> 0b588df6dd7c4f3db30d4108325d6c61cf856613
   optimizeDeps: {
     entries: ["src/main.tsx", "src/tempobook/**/*"],
     include: [
