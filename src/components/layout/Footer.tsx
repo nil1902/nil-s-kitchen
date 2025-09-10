@@ -32,7 +32,7 @@ const Footer = () => {
               </li>
               <li className="flex items-center gap-2">
                 <Mail size={18} />
-                <span>snresturent@gmail.com</span>
+                <span>nilimeshpal4@gmail.com</span>
               </li>
             </ul>
           </div>

@@ -22,7 +22,7 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ className }) => {
     }
 
     try {
-      await fetch("https://formsubmit.co/ajax/snresturent@gmail.com", {
+      await fetch("https://formsubmit.co/ajax/nilimeshpal4@gmail.com", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

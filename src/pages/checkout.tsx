@@ -159,7 +159,7 @@ const CheckoutPage = () => {
         // Create detailed email content for owner
         const ownerEmailContent = {
           ...emailContent,
-          to: "snresturent@gmail.com",
+          to: "nilimeshpal4@gmail.com",
         };
         // Create detailed email content for customer
         const customerEmailContent = {
@@ -169,7 +169,7 @@ const CheckoutPage = () => {
 
         // Send confirmation email to owner
         try {
-          await fetch("https://formsubmit.co/ajax/snresturent@gmail.com", {
+          await fetch("https://formsubmit.co/ajax/nilimeshpal4@gmail.com", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",

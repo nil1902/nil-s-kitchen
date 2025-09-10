@@ -69,7 +69,7 @@ function TermsOfService() {
         </h2>
         <p className="mb-4">
           If you have any questions about these Terms of Service, please contact
-          us at: info@nilskitchen.com
+          us at: nilimeshpal4@gmail.com
         </p>
       </div>
     </div>
