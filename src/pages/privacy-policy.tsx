@@ -75,7 +75,7 @@ function PrivacyPolicy() {
         </h2>
         <p className="mb-4">
           To ask questions or comment about this privacy policy and our privacy
-          practices, contact us at: info@nilskitchen.com
+          practices, contact us at: nilimeshpal4@gmail.com
         </p>
       </div>
     </div>

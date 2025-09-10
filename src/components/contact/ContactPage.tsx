@@ -37,7 +37,7 @@ const ContactPage = () => {
 
         // Send form data to formsubmit.co service
         const response = await fetch(
-          "https://formsubmit.co/ajax/snresturent@gmail.com",
+          "https://formsubmit.co/ajax/nilimeshpal4@gmail.com",
           {
             method: "POST",
             headers: {
@@ -201,11 +201,11 @@ const ContactPage = () => {
                   <div>
                     <h3 className="text-xl font-semibold mb-2">Phone</h3>
                     <p className="text-gray-600">
-                      Reservations: (555) 123-4567
+                      Reservations: +918250565455
                       <br />
-                      General Inquiries: (555) 765-4321
+                      General Inquiries: +918250565455
                       <br />
-                      Catering: (555) 987-6543
+                      Catering: +918250565455
                     </p>
                   </div>
                 </div>
@@ -219,11 +219,11 @@ const ContactPage = () => {
                   <div>
                     <h3 className="text-xl font-semibold mb-2">Email</h3>
                     <p className="text-gray-600">
-                      Reservations: reservations@nilskitchen.com
+                      Reservations: nilimeshpal4@gmail.com
                       <br />
-                      General Inquiries: info@nilskitchen.com
+                      General Inquiries: nilimeshpal4@gmail.com
                       <br />
-                      Catering: catering@nilskitchen.com
+                      Catering: nilimeshpal4@gmail.com
                     </p>
                   </div>
                 </div>
@@ -295,7 +295,7 @@ const ContactPage = () => {
               </p>
               <p className="text-sm text-gray-500">
                 We'll get back to you as soon as possible at {email}. If your
-                matter is urgent, please call us at (555) 123-4567.
+                matter is urgent, please call us at +918250565455.
               </p>
             </div>
           </div>

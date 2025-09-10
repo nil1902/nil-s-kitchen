@@ -171,7 +171,7 @@ const ReservationPage = () => {
         guests: parseInt(guests) || 2,
         name: name || "Guest",
         email: email || "guest@example.com",
-        phone: phone || "(555) 123-4567",
+        phone: phone || "+918250565455",
         specialRequests,
         status: "Upcoming",
         userId: currentUser?.uid || "guest-user",
@@ -180,7 +180,7 @@ const ReservationPage = () => {
         restaurantName: "Bengal Bay",
         restaurantAddress:
           "Shantipur, Landmark Station Rd, PIN: 741404, Dist Nadia, West Bengal, India",
-        restaurantPhone: "(555) 123-4567",
+        restaurantPhone: "+918250565455",
         createdAt: serverTimestamp(),
       };
 
@@ -202,7 +202,7 @@ const ReservationPage = () => {
 
       // Send actual email using FormSubmit service
       const emailContent = {
-        to: email || "snresturent@gmail.com", // Default to restaurant owner's email
+        to: email || "nilimeshpal4@gmail.com", // Default to restaurant owner's email
         subject: `✨ Your Table is Reserved! Confirmation #${newBookingId} - Bengal Bay`,
         message: `
           Dear ${name || "Guest"},
@@ -223,11 +223,11 @@ const ReservationPage = () => {
           Shantipur, Landmark Station Rd
           PIN: 741404, Dist Nadia
           West Bengal, India
-          📞 Phone: (555) 123-4567
+          📞 Phone: +918250565455
 
           We're excited to welcome you and promise an unforgettable dining experience!
 
-          Need to make changes? Please call us at (555) 123-4567.
+          Need to make changes? Please call us at +918250565455.
 
           Warm regards,
                       The Bengal Bay Team
@@ -240,7 +240,7 @@ const ReservationPage = () => {
       try {
         // Actually send the email using FormSubmit
         const emailResponse = await fetch(
-          "https://formsubmit.co/ajax/snresturent@gmail.com",
+          "https://formsubmit.co/ajax/nilimeshpal4@gmail.com",
           {
             method: "POST",
             headers: {
@@ -463,7 +463,7 @@ const ReservationPage = () => {
                     id="phone"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    placeholder="(555) 123-4567"
+                    placeholder="+918250565455"
                     required
                   />
                 </div>
@@ -549,7 +549,7 @@ const ReservationPage = () => {
                     </h3>
                     <p className="text-gray-600">
                       For parties larger than 10 people, please call us directly
-                      at (555) 123-4567 to arrange your reservation.
+                      at +918250565455 to arrange your reservation.
                     </p>
                   </div>
                 </div>
@@ -642,7 +642,7 @@ const ReservationPage = () => {
                 </p>
                 <p className="text-sm text-gray-700 mt-2">
                   📞 Need to make changes? Please call us at{" "}
-                  <span className="font-medium">(555) 123-4567</span>.
+                  <span className="font-medium">+918250565455</span>.
                 </p>
               </div>
             </div>

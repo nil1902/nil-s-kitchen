@@ -142,7 +142,7 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
 
     // Send confirmation email
     try {
-      fetch("https://formsubmit.co/ajax/snresturent@gmail.com", {
+      fetch("https://formsubmit.co/ajax/nilimeshpal4@gmail.com", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
