@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { loadRazorpay } from "@/lib/razorpay";
 import { useCart } from "../cart/CartContext";
@@ -46,9 +46,8 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
       try {
         console.log("Creating order with amount:", amount);
         
-        // FIXED: Use proper URL construction
         const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
-        const orderResponse = await fetch(`${API_BASE_URL}/api/create-razorpay-order`, {
+        const orderResponse = await fetch(${API_BASE_URL}/api/create-razorpay-order, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -56,14 +55,14 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
           body: JSON.stringify({
             amount,
             currency: "INR",
-            receipt: `receipt_${Date.now()}`,
+            receipt: eceipt_,
           }),
         });
         
         console.log("Order response status:", orderResponse.status);
         
         if (!orderResponse.ok) {
-          throw new Error(`HTTP error! status: ${orderResponse.status}`);
+          throw new Error(HTTP error! status: );
         }
         
         orderData = await orderResponse.json();
@@ -126,7 +125,7 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
         disabled={isProcessing || cartItems.length === 0}
         className="w-full bg-amber-600 hover:bg-amber-700 text-white py-6 text-lg"
       >
-        {isProcessing ? "Processing..." : `Pay ₹${(amount / 100).toFixed(2)}`}
+        {isProcessing ? "Processing..." : Pay ₹}
       </Button>
       <p className="text-xs text-gray-500 text-center mt-2">
         You will be redirected to a secure payment gateway
