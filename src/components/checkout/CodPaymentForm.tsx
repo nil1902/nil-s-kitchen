@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { RefreshCw } from "lucide-react";
 
 interface CodPaymentFormProps {
   onSubmit: () => void;
@@ -12,15 +13,77 @@ const CodPaymentForm: React.FC<CodPaymentFormProps> = ({
   amount,
 }) => {
   const [captcha, setCaptcha] = useState("");
-  const [captchaImage] = useState("898"); // In a real app, this would be generated
+  const [captchaImage, setCaptchaImage] = useState("");
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const generateCaptchaCode = () => {
+    const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    let captcha = "";
+    for (let i = 0; i < 6; i++) {
+      captcha += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return captcha;
+  };
+
+  const drawCaptcha = (text: string) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const width = 180;
+    const height = 50;
+    canvas.width = width;
+    canvas.height = height;
+
+    ctx.fillStyle = "#f9f9f9";
+    ctx.fillRect(0, 0, width, height);
+
+    for (let i = 0; i < 5; i++) {
+      ctx.strokeStyle = `rgba(0,0,0,${Math.random() * 0.3})`;
+      ctx.beginPath();
+      ctx.moveTo(Math.random() * width, Math.random() * height);
+      ctx.lineTo(Math.random() * width, Math.random() * height);
+      ctx.stroke();
+    }
+
+    ctx.font = "bold 28px Arial";
+    ctx.textBaseline = "middle";
+
+    for (let i = 0; i < text.length; i++) {
+      const char = text[i];
+      const x = 20 + i * 25;
+      const y = height / 2 + (Math.random() * 4 - 2);
+      const angle = (Math.random() * 30 - 15) * (Math.PI / 180);
+
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(angle);
+      ctx.fillStyle = `hsl(${Math.random() * 360}, 60%, 30%)`;
+      ctx.fillText(char, 0, 0);
+      ctx.restore();
+    }
+  };
+
+  const refreshCaptcha = () => {
+    const newCode = generateCaptchaCode();
+    setCaptchaImage(newCode);
+    drawCaptcha(newCode);
+    setCaptcha("");
+  };
+
+  useEffect(() => {
+    refreshCaptcha();
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, this would validate the captcha
     if (captcha === captchaImage) {
       onSubmit();
     } else {
       alert("Invalid captcha. Please try again.");
+      refreshCaptcha();
     }
   };
 
@@ -35,9 +98,21 @@ const CodPaymentForm: React.FC<CodPaymentFormProps> = ({
         </p>
       </div>
 
+      {/* Captcha Section */}
       <div className="flex items-center gap-4">
-        <div className="bg-green-100 p-2 rounded-md text-2xl font-bold text-green-800">
-          {captchaImage}
+        <div className="flex items-center gap-2">
+          <canvas
+            ref={canvasRef}
+            className="rounded-md border border-gray-300 shadow-sm"
+          />
+          <button
+            type="button"
+            onClick={refreshCaptcha}
+            className="p-2 rounded-full hover:bg-gray-100 transition"
+            aria-label="Refresh Captcha"
+          >
+            <RefreshCw className="w-5 h-5 text-gray-600" />
+          </button>
         </div>
         <Input
           value={captcha}
