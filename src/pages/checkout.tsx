@@ -21,8 +21,6 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 
 const CheckoutPage = () => {
   const { currentUser } = useAuth();
@@ -46,13 +44,6 @@ const CheckoutPage = () => {
     landmark: "",
     addressType: "home",
   });
-
-  // Redirect to login if not authenticated
-  useEffect(() => {
-    if (!currentUser) {
-      navigate("/login");
-    }
-  }, [currentUser, navigate]);
 
   // If cart is empty, redirect to menu
   useEffect(() => {
@@ -82,8 +73,8 @@ const CheckoutPage = () => {
         })),
         total: totalAmount,
         status: "Processing",
-        userId: currentUser?.uid,
-        userEmail: currentUser?.email,
+        userId: currentUser?.uid || "guest",
+        userEmail: currentUser?.email || "guest@example.com",
         userName: currentUser?.displayName || address.name,
         shippingAddress: address,
         paymentMethod: "Online Payment",
@@ -91,117 +82,21 @@ const CheckoutPage = () => {
         tax: cartTotal * 0.05,
         subtotal: cartTotal,
         protectFee: 9,
-        timestamp: serverTimestamp(),
       };
 
-      // Save to Firestore
-      if (currentUser) {
-        const docRef = await addDoc(collection(db, "orders"), orderData);
-        console.log("Order saved with ID: ", docRef.id);
-        setOrderId(randomOrderId);
+      // Save to localStorage as backup
+      const userOrdersKey = "orders";
+      const existingOrders = localStorage.getItem(userOrdersKey);
+      const orders = existingOrders ? JSON.parse(existingOrders) : [];
+      orders.unshift(orderData);
+      localStorage.setItem(userOrdersKey, JSON.stringify(orders));
+      localStorage.setItem("currentUserId", currentUser?.uid || "guest");
 
-        // Also save to user-specific localStorage as backup
-        const userOrdersKey = `orders_${currentUser.uid}`;
-        const existingOrders = localStorage.getItem(userOrdersKey);
-        const orders = existingOrders ? JSON.parse(existingOrders) : [];
-        orders.unshift(orderData);
-        localStorage.setItem(userOrdersKey, JSON.stringify(orders));
-        // Save current userId for fallback order lookup
-        localStorage.setItem("currentUserId", currentUser.uid);
-
-        // Create detailed email content with order information
-        const emailContent = {
-          to: currentUser.email,
-          subject: `Order Confirmation #${randomOrderId} - Bengal Bay`,
-          message: `
-            Dear ${currentUser.displayName || address.name},
-
-            Thank you for your order at Bengal Bay!
-
-            Order ID: ${randomOrderId}
-            Date: ${new Date(orderDate).toLocaleString()}
-
-            Items:
-            ${cartItems
-              .map(
-                (item) => `
-            - ${item.name} (${item.quantity}x) - ₹${(item.price * item.quantity).toFixed(2)}
-              Item ID: ${item.id}
-              Unit Price: ₹${item.price.toFixed(2)}
-            `,
-              )
-              .join("")}
-
-            Subtotal: ₹${cartTotal.toFixed(2)}
-            Tax (5%): ₹${(cartTotal * 0.05).toFixed(2)}
-            Protect Fee: ₹9.00
-            Total: ₹${totalAmount.toFixed(2)}
-
-            Shipping Address:
-            ${address.name}
-            ${address.address}
-            ${address.locality}, ${address.city}, ${address.state} - ${address.pincode}
-            Phone: ${address.phone}
-
-            Payment Method: Online Payment
-            Payment Status: Completed
-
-            Your order has been received and is being processed.
-            You can track your order in the My Orders section of your profile.
-
-            Thank you for choosing Bengal Bay!
-            
-            Best regards,
-            The Bengal Bay Team
-          `,
-        };
-
-        // Create detailed email content for owner
-        const ownerEmailContent = {
-          ...emailContent,
-          to: "nilimeshpal4@gmail.com",
-        };
-        // Create detailed email content for customer
-        const customerEmailContent = {
-          ...emailContent,
-          to: currentUser.email,
-        };
-
-        // Send confirmation email to owner
-        try {
-          await fetch("https://formsubmit.co/ajax/nilimeshpal4@gmail.com", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-            body: JSON.stringify(ownerEmailContent),
-          });
-          console.log("Confirmation email sent successfully to owner");
-        } catch (emailErr) {
-          console.error("Failed to send confirmation email to owner", emailErr);
-        }
-
-        // Send confirmation email to customer
-        try {
-          await fetch("https://formsubmit.co/ajax/" + currentUser.email, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-            body: JSON.stringify(customerEmailContent),
-          });
-          console.log("Confirmation email sent successfully to customer");
-        } catch (emailErr) {
-          console.error("Failed to send confirmation email to customer", emailErr);
-        }
-
-        // Show confirmation dialog
-        setIsOrderComplete(true);
-        // Clear cart after successful order
-        clearCart();
-      }
+      setOrderId(randomOrderId);
+      setIsOrderComplete(true);
+      clearCart();
+      
+      console.log("Order completed successfully:", orderData);
     } catch (error) {
       console.error("Failed to process order:", error);
       alert("There was an error processing your order. Please try again.");
@@ -261,7 +156,7 @@ const CheckoutPage = () => {
             <div className="space-y-4">
               <div className="flex justify-between text-sm">
                 <span>Items ({cartItems.length})</span>
-                <span>₹{cartTotal.toFixed(2)}</span>
+                <span>?{cartTotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span>Delivery</span>
@@ -269,15 +164,16 @@ const CheckoutPage = () => {
               </div>
               <div className="flex justify-between text-sm">
                 <span>Tax (5%)</span>
-                <span>₹{(cartTotal * 0.05).toFixed(2)}</span>
+                <span>?{(cartTotal * 0.05).toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span>Protect Fee</span>
+                <span>?9.00</span>
               </div>
               <Separator />
               <div className="flex justify-between font-semibold">
                 <span>Total</span>
-                <span>₹{(cartTotal + cartTotal * 0.05).toFixed(2)}</span>
-              </div>
-              <div className="text-green-600 text-sm mt-2">
-                Your Total Savings: ₹{(cartTotal * 0.1).toFixed(2)}
+                <span>?{(cartTotal + cartTotal * 0.05 + 9).toFixed(2)}</span>
               </div>
             </div>
           </div>
@@ -336,8 +232,7 @@ const CheckoutPage = () => {
             </div>
             <div className="text-center space-y-3">
               <p className="font-medium">
-                Thank you for your order,{" "}
-                {currentUser?.displayName || address.name}!
+                Thank you for your order, {address.name}!
               </p>
               <div className="bg-gray-50 p-4 rounded-md">
                 <p className="font-medium">Order Details:</p>
@@ -354,11 +249,11 @@ const CheckoutPage = () => {
                       <div className="flex-1">
                         <p className="text-sm font-medium">{item.name}</p>
                         <p className="text-xs text-gray-500">
-                          ₹{item.price.toFixed(2)} x {item.quantity}
+                          ?{item.price.toFixed(2)} x {item.quantity}
                         </p>
                       </div>
                       <p className="font-medium">
-                        ₹{(item.price * item.quantity).toFixed(2)}
+                        ?{(item.price * item.quantity).toFixed(2)}
                       </p>
                     </div>
                   ))}
@@ -366,28 +261,24 @@ const CheckoutPage = () => {
                 <div className="border-t pt-2 mt-2">
                   <div className="flex justify-between text-sm">
                     <span>Subtotal:</span>
-                    <span>₹{cartTotal.toFixed(2)}</span>
+                    <span>?{cartTotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span>Tax (5%):</span>
-                    <span>₹{(cartTotal * 0.05).toFixed(2)}</span>
+                    <span>?{(cartTotal * 0.05).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span>Protect Fee:</span>
-                    <span>₹9.00</span>
+                    <span>?9.00</span>
                   </div>
                   <div className="flex justify-between font-medium mt-1">
                     <span>Total:</span>
                     <span>
-                      ₹{(cartTotal + cartTotal * 0.05 + 9).toFixed(2)}
+                      ?{(cartTotal + cartTotal * 0.05 + 9).toFixed(2)}
                     </span>
                   </div>
                 </div>
               </div>
-              <p className="text-sm text-gray-500">
-                A confirmation email has been sent to {currentUser?.email}. You
-                can track your order in the My Orders section of your profile.
-              </p>
             </div>
           </div>
           <div className="flex justify-center">
