@@ -65,7 +65,7 @@ export const verifyPayment = async (paymentData: any) => {
     console.log("Verifying payment:", paymentData.razorpay_payment_id);
     
     // Using Render backend URL
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://bengal-bay-api.onrender.com";
+    const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "https://bengal-bay-api.onrender.com";
     
     // Add timeout to prevent hanging
     const controller = new AbortController();

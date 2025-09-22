@@ -72,8 +72,8 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
         console.log("Creating order with amount:", amount);
 
         // Using Render backend URL
-        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://bengal-bay-api.onrender.com";
-        console.log("🔗 Using API Base URL:", API_BASE_URL);
+        const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "https://bengal-bay-api.onrender.com";
+        console.log("🔗 Using Backend URL:", API_BASE_URL);
         console.log("🌐 Backend Status: Connected to Render");
 
         // Add timeout to prevent hanging
