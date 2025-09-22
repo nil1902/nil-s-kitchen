@@ -64,7 +64,9 @@ export const verifyPayment = async (paymentData: any) => {
   try {
     console.log("Verifying payment:", paymentData.razorpay_payment_id);
     
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+    // Smart API URL detection
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 
+      (window.location.hostname === 'localhost' ? 'http://localhost:5000' : window.location.origin);
     
     // Add timeout to prevent hanging
     const controller = new AbortController();
