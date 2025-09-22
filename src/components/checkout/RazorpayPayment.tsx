@@ -52,7 +52,8 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
       try {
         console.log("Creating order with amount:", amount);
         
-        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 
+          (import.meta.env.PROD ? window.location.origin : "http://localhost:5000");
         
         // Add timeout to prevent hanging
         const controller = new AbortController();

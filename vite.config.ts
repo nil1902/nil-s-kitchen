@@ -46,10 +46,12 @@ export default defineConfig({
     minify: "terser",
     terserOptions: {
       compress: {
-        drop_console: true,
-        drop_debugger: true,
+        drop_console: process.env.NODE_ENV === 'production',
+        drop_debugger: process.env.NODE_ENV === 'production',
       },
     },
+    sourcemap: false, // Disable sourcemaps for production
+    outDir: "dist",
   },
   plugins: [
     react({
@@ -65,6 +67,10 @@ export default defineConfig({
   },
   server: {
     allowedHosts: true,
-    port: 5173, // Default port
+    port: 5173,
+  },
+  preview: {
+    port: 4173,
+    host: true,
   },
 });
