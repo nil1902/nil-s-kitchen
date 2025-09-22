@@ -61,37 +61,53 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
   }, []);
 
   const handlePaymentSuccess = async (paymentData: any) => {
+    if (isProcessing) return; // Prevent double processing
+    
     setIsProcessing(true);
     
     try {
-      // Verify payment with your backend
+      console.log("Processing payment success...");
+      
+      // Verify payment with backend
       const verification = await verifyPayment(paymentData);
       
       if (!verification.success) {
-        throw new Error("Payment verification failed");
+        throw new Error(verification.error || "Payment verification failed");
       }
       
+      console.log("Payment verified successfully");
+      
       // Generate order ID and save order
-      const randomOrderId = `ORD-${Math.floor(Math.random() * 1000000)}`;
+      const randomOrderId = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
       await saveOrder(randomOrderId, paymentData);
       
-      // Send confirmation email
-      await sendConfirmationEmail(randomOrderId);
+      // Send confirmation email (don't wait for it to complete)
+      sendConfirmationEmail(randomOrderId).catch(error => {
+        console.warn("Failed to send confirmation email:", error);
+      });
       
       setOrderId(randomOrderId);
       setIsPaymentComplete(true);
       onPaymentComplete();
-    } catch (error) {
+      
+    } catch (error: any) {
       console.error("Payment processing error:", error);
-      // Handle error appropriately
-    } finally {
+      
+      // Show user-friendly error message
+      const errorMessage = error.message || "Payment processing failed. Please contact support.";
+      alert(`Error: ${errorMessage}`);
+      
+      // Reset processing state
       setIsProcessing(false);
     }
   };
 
   const handlePaymentError = (error: any) => {
     console.error("Payment error:", error);
-    alert(`Payment failed: ${error.message || "Please try again"}`);
+    setIsProcessing(false);
+    
+    const errorMessage = error.description || error.message || "Payment failed. Please try again.";
+    alert(`Payment Failed: ${errorMessage}`);
   };
 
   const saveOrder = async (orderId: string, paymentData: any) => {

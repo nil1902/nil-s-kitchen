@@ -15,6 +15,7 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
   onError,
 }) => {
   const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { cartTotal, cartItems } = useCart();
   const { currentUser } = useAuth();
 
@@ -30,26 +31,33 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
     }
 
     setIsProcessing(true);
+    setError(null);
     
     try {
       console.log("Loading Razorpay script...");
       const razorpayLoaded = await loadRazorpay();
       
       if (!razorpayLoaded) {
-        throw new Error("Failed to load payment gateway");
+        throw new Error("Failed to load payment gateway. Please check your internet connection.");
       }
       console.log("Razorpay script loaded successfully");
       
       let orderData;
+      let isUsingMock = false;
       
       // Generate a receipt ID
       const receiptId = `receipt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
-      // Try to create order with real backend, fallback to mock if fails
+      // Try to create order with real backend first
       try {
         console.log("Creating order with amount:", amount);
         
         const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+        
+        // Add timeout to prevent hanging
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+        
         const orderResponse = await fetch(`${API_BASE_URL}/api/create-razorpay-order`, {
           method: "POST",
           headers: {
@@ -60,63 +68,87 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
             currency: "INR",
             receipt: receiptId,
           }),
+          signal: controller.signal,
         });
         
+        clearTimeout(timeoutId);
         console.log("Order response status:", orderResponse.status);
         
         if (!orderResponse.ok) {
-          throw new Error(`HTTP error! status: ${orderResponse.status}`);
+          throw new Error(`Server error: ${orderResponse.status}`);
+        }
+        
+        const contentType = orderResponse.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+          throw new Error("Invalid response format from server");
         }
         
         orderData = await orderResponse.json();
-        console.log("Order data:", orderData);
+        console.log("Order created successfully:", orderData.order?.id);
         
       } catch (error) {
-        console.warn("Real API failed, using mock:", error);
+        console.warn("Backend API failed, using mock payment:", error);
+        isUsingMock = true;
         orderData = await createMockRazorpayOrder(amount);
       }
       
-      if (!orderData.success) {
-        throw new Error(orderData.error || "Failed to create order");
+      if (!orderData?.success) {
+        throw new Error(orderData?.error || "Failed to create payment order");
       }
       
+      // Razorpay options
       const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_1234567890abcdef",
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_RJ8qybQN1ECcEw",
         amount: orderData.order.amount,
-        currency: orderData.order.currency,
+        currency: orderData.order.currency || "INR",
         name: "Bengal Bay",
         description: "Food Order Payment",
         order_id: orderData.order.id,
         handler: function (response: any) {
           console.log("Payment successful:", response);
+          // Add mock flag to response if using mock
+          if (isUsingMock) {
+            response._isMockPayment = true;
+          }
           onSuccess(response);
         },
         prefill: {
           name: currentUser?.displayName || "Guest User",
           email: currentUser?.email || "guest@example.com",
-          contact: "9876543210",
+          contact: "+918250565455",
         },
         notes: {
-          address: "Restaurant Order",
+          address: "Bengal Bay Restaurant",
           userId: currentUser?.uid || "guest",
+          orderItems: cartItems.length,
         },
         theme: {
           color: "#F59E0B",
         },
+        modal: {
+          ondismiss: function() {
+            console.log("Payment modal closed by user");
+            setIsProcessing(false);
+          }
+        }
       };
       
       const razorpay = new (window as any).Razorpay(options);
+      
       razorpay.on("payment.failed", function (response: any) {
         console.error("Payment failed:", response.error);
+        setError(`Payment failed: ${response.error.description || "Please try again"}`);
         onError(response.error);
+        setIsProcessing(false);
       });
       
       razorpay.open();
       
-    } catch (error) {
+    } catch (error: any) {
       console.error("Payment initiation error:", error);
-      onError(error);
-    } finally {
+      const errorMessage = error.message || "Failed to initiate payment. Please try again.";
+      setError(errorMessage);
+      onError({ message: errorMessage });
       setIsProcessing(false);
     }
   };
@@ -126,16 +158,36 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
 
   return (
     <div className="p-4">
+      {error && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+          <p className="text-red-800 text-sm">{error}</p>
+        </div>
+      )}
+      
       <Button
         onClick={initiatePayment}
         disabled={isProcessing || cartItems.length === 0}
-        className="w-full bg-amber-600 hover:bg-amber-700 text-white py-6 text-lg"
+        className="w-full bg-amber-600 hover:bg-amber-700 disabled:bg-gray-400 text-white py-6 text-lg transition-colors"
       >
-        {isProcessing ? "Processing..." : `Pay ₹${displayAmount}`}
+        {isProcessing ? (
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            Processing...
+          </div>
+        ) : (
+          `Pay ₹${displayAmount}`
+        )}
       </Button>
+      
       <p className="text-xs text-gray-500 text-center mt-2">
         You will be redirected to a secure payment gateway
       </p>
+      
+      {isProcessing && (
+        <p className="text-xs text-amber-600 text-center mt-1">
+          Please do not close this window or press back button
+        </p>
+      )}
     </div>
   );
 };

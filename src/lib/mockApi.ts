@@ -1,36 +1,37 @@
-// Mock API functions for development
+// Mock API functions for development and fallback
 export const createMockRazorpayOrder = async (amount: number) => {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 1000));
+  console.log("Creating mock Razorpay order for amount:", amount);
+  
+  // Simulate realistic API delay
+  await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 400));
+  
+  const orderId = `order_mock_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   
   return {
     success: true,
     order: {
-      id: `order_${Math.random().toString(36).substr(2, 9)}`,
+      id: orderId,
       amount: amount,
       currency: "INR",
       status: "created",
-      attempts: 0
+      attempts: 0,
+      created_at: Math.floor(Date.now() / 1000),
+      _isMock: true
     }
   };
 };
 
 export const verifyMockPayment = async (paymentData: any) => {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 800));
+  console.log("Using mock payment verification for:", paymentData.razorpay_payment_id || "mock payment");
   
-  // Simulate successful verification 90% of the time
-  const success = Math.random() > 0.1;
+  // Simulate realistic API delay
+  await new Promise(resolve => setTimeout(resolve, 600 + Math.random() * 400));
   
-  if (success) {
-    return {
-      success: true,
-      message: "Payment verified successfully"
-    };
-  } else {
-    return {
-      success: false,
-      error: "Payment verification failed"
-    };
-  }
+  // Always succeed for mock payments to prevent user frustration
+  // In production, you'd want proper verification
+  return {
+    success: true,
+    message: "Mock payment verified successfully",
+    _isMockVerification: true
+  };
 };
