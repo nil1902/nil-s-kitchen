@@ -2,39 +2,55 @@ import { verifyMockPayment } from "./mockApi";
 
 export const loadRazorpay = (): Promise<boolean> => {
   return new Promise((resolve) => {
-    // Check if Razorpay is already loaded
-    if ((window as any).Razorpay) {
-      resolve(true);
-      return;
-    }
+    try {
+      // Check if Razorpay is already loaded
+      if ((window as any).Razorpay) {
+        console.log("Razorpay already loaded");
+        resolve(true);
+        return;
+      }
 
-    const script = document.createElement("script");
-    script.src = "https://checkout.razorpay.com/v1/checkout.js";
-    script.async = true;
-    
-    script.onload = () => {
-      console.log("Razorpay script loaded successfully");
-      resolve(true);
-    };
-    
-    script.onerror = (error) => {
-      console.error("Failed to load Razorpay script:", error);
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.async = true;
+      
+      // Add timeout for script loading
+      const timeout = setTimeout(() => {
+        console.error("Razorpay script loading timeout");
+        document.head.removeChild(script);
+        resolve(false);
+      }, 10000);
+      
+      script.onload = () => {
+        clearTimeout(timeout);
+        console.log("Razorpay script loaded successfully");
+        
+        // Double check that Razorpay is actually available
+        if ((window as any).Razorpay) {
+          resolve(true);
+        } else {
+          console.error("Razorpay script loaded but Razorpay object not found");
+          resolve(false);
+        }
+      };
+      
+      script.onerror = (error) => {
+        clearTimeout(timeout);
+        console.error("Failed to load Razorpay script:", error);
+        try {
+          document.head.removeChild(script);
+        } catch (e) {
+          // Ignore cleanup errors
+        }
+        resolve(false);
+      };
+      
+      document.head.appendChild(script);
+      
+    } catch (error) {
+      console.error("Error in loadRazorpay:", error);
       resolve(false);
-    };
-    
-    // Add timeout for script loading
-    const timeout = setTimeout(() => {
-      console.error("Razorpay script loading timeout");
-      resolve(false);
-    }, 10000);
-    
-    script.onload = () => {
-      clearTimeout(timeout);
-      console.log("Razorpay script loaded successfully");
-      resolve(true);
-    };
-    
-    document.head.appendChild(script);
+    }
   });
 };
 
@@ -48,8 +64,7 @@ export const verifyPayment = async (paymentData: any) => {
   try {
     console.log("Verifying payment:", paymentData.razorpay_payment_id);
     
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 
-      (import.meta.env.PROD ? window.location.origin : "http://localhost:5000");
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
     
     // Add timeout to prevent hanging
     const controller = new AbortController();

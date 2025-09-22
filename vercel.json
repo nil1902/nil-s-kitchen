@@ -2,6 +2,12 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
+  "installCommand": "npm install --no-optional",
+  "git": {
+    "deploymentEnabled": {
+      "main": true
+    }
+  },
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ],
@@ -16,15 +22,10 @@
       ]
     }
   ],
-  "functions": {
-    "backend/server/server.js": {
-      "runtime": "nodejs18.x"
-    }
-  },
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/backend/server/server.js"
+      "dest": "/api/$1"
     },
     {
       "src": "/(.*)",

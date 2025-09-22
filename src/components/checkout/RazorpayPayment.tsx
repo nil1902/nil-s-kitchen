@@ -19,46 +19,65 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
   const { cartTotal, cartItems } = useCart();
   const { currentUser } = useAuth();
 
-  // Calculate total amount
-  const tax = cartTotal * 0.05;
+  // Calculate total amount with safety checks
+  const tax = (cartTotal || 0) * 0.05;
   const protectFee = 9;
-  const amount = Math.round((cartTotal + tax + protectFee) * 100); // Convert to paise
+  const amount = Math.round(((cartTotal || 0) + tax + protectFee) * 100); // Convert to paise
 
   const initiatePayment = async () => {
-    if (cartItems.length === 0) {
-      onError({ message: "Cart is empty" });
+    // Safety checks
+    if (!cartItems || cartItems.length === 0) {
+      const errorMsg = "Cart is empty. Please add items before proceeding.";
+      setError(errorMsg);
+      onError({ message: errorMsg });
+      return;
+    }
+
+    if (amount <= 0) {
+      const errorMsg = "Invalid amount. Please refresh and try again.";
+      setError(errorMsg);
+      onError({ message: errorMsg });
       return;
     }
 
     setIsProcessing(true);
     setError(null);
-    
+
     try {
       console.log("Loading Razorpay script...");
-      const razorpayLoaded = await loadRazorpay();
-      
-      if (!razorpayLoaded) {
-        throw new Error("Failed to load payment gateway. Please check your internet connection.");
+
+      // Load Razorpay with error handling
+      let razorpayLoaded = false;
+      try {
+        razorpayLoaded = await loadRazorpay();
+      } catch (loadError) {
+        console.error("Razorpay script loading failed:", loadError);
+        throw new Error("Failed to load payment gateway. Please check your internet connection and try again.");
       }
+
+      if (!razorpayLoaded) {
+        throw new Error("Payment gateway is not available. Please try again later.");
+      }
+
       console.log("Razorpay script loaded successfully");
-      
+
       let orderData;
       let isUsingMock = false;
-      
+
       // Generate a receipt ID
       const receiptId = `receipt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      
+
       // Try to create order with real backend first
       try {
         console.log("Creating order with amount:", amount);
-        
-        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 
-          (import.meta.env.PROD ? window.location.origin : "http://localhost:5000");
-        
+
+        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+        console.log("Using API Base URL:", API_BASE_URL);
+
         // Add timeout to prevent hanging
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-        
+        const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+
         const orderResponse = await fetch(`${API_BASE_URL}/api/create-razorpay-order`, {
           method: "POST",
           headers: {
@@ -71,33 +90,44 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
           }),
           signal: controller.signal,
         });
-        
+
         clearTimeout(timeoutId);
         console.log("Order response status:", orderResponse.status);
-        
+
         if (!orderResponse.ok) {
           throw new Error(`Server error: ${orderResponse.status}`);
         }
-        
+
         const contentType = orderResponse.headers.get("content-type");
         if (!contentType || !contentType.includes("application/json")) {
           throw new Error("Invalid response format from server");
         }
-        
+
         orderData = await orderResponse.json();
         console.log("Order created successfully:", orderData.order?.id);
-        
-      } catch (error) {
-        console.warn("Backend API failed, using mock payment:", error);
+
+      } catch (apiError: any) {
+        console.warn("Backend API failed, using mock payment:", apiError.message);
         isUsingMock = true;
-        orderData = await createMockRazorpayOrder(amount);
+
+        try {
+          orderData = await createMockRazorpayOrder(amount);
+        } catch (mockError) {
+          console.error("Mock API also failed:", mockError);
+          throw new Error("Unable to create payment order. Please try again.");
+        }
       }
-      
-      if (!orderData?.success) {
+
+      if (!orderData?.success || !orderData?.order) {
         throw new Error(orderData?.error || "Failed to create payment order");
       }
-      
-      // Razorpay options
+
+      // Validate order data
+      if (!orderData.order.id || !orderData.order.amount) {
+        throw new Error("Invalid order data received. Please try again.");
+      }
+
+      // Razorpay options with error handling
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_RJ8qybQN1ECcEw",
         amount: orderData.order.amount,
@@ -106,12 +136,19 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
         description: "Food Order Payment",
         order_id: orderData.order.id,
         handler: function (response: any) {
-          console.log("Payment successful:", response);
-          // Add mock flag to response if using mock
-          if (isUsingMock) {
-            response._isMockPayment = true;
+          try {
+            console.log("Payment successful:", response);
+            // Add mock flag to response if using mock
+            if (isUsingMock) {
+              response._isMockPayment = true;
+            }
+            setIsProcessing(false);
+            onSuccess(response);
+          } catch (handlerError) {
+            console.error("Payment handler error:", handlerError);
+            setIsProcessing(false);
+            onError({ message: "Payment processing failed. Please contact support." });
           }
-          onSuccess(response);
         },
         prefill: {
           name: currentUser?.displayName || "Guest User",
@@ -127,30 +164,44 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
           color: "#F59E0B",
         },
         modal: {
-          ondismiss: function() {
+          ondismiss: function () {
             console.log("Payment modal closed by user");
             setIsProcessing(false);
           }
         }
       };
-      
-      const razorpay = new (window as any).Razorpay(options);
-      
+
+      // Create Razorpay instance with error handling
+      let razorpay;
+      try {
+        razorpay = new (window as any).Razorpay(options);
+      } catch (razorpayError) {
+        console.error("Razorpay initialization failed:", razorpayError);
+        throw new Error("Payment gateway initialization failed. Please refresh and try again.");
+      }
+
       razorpay.on("payment.failed", function (response: any) {
         console.error("Payment failed:", response.error);
-        setError(`Payment failed: ${response.error.description || "Please try again"}`);
-        onError(response.error);
+        const errorMsg = response.error?.description || response.error?.reason || "Payment failed. Please try again.";
+        setError(`Payment failed: ${errorMsg}`);
         setIsProcessing(false);
+        onError(response.error);
       });
-      
-      razorpay.open();
-      
+
+      // Open payment modal with error handling
+      try {
+        razorpay.open();
+      } catch (openError) {
+        console.error("Failed to open payment modal:", openError);
+        throw new Error("Unable to open payment gateway. Please try again.");
+      }
+
     } catch (error: any) {
       console.error("Payment initiation error:", error);
       const errorMessage = error.message || "Failed to initiate payment. Please try again.";
       setError(errorMessage);
-      onError({ message: errorMessage });
       setIsProcessing(false);
+      onError({ message: errorMessage });
     }
   };
 
@@ -164,7 +215,7 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
           <p className="text-red-800 text-sm">{error}</p>
         </div>
       )}
-      
+
       <Button
         onClick={initiatePayment}
         disabled={isProcessing || cartItems.length === 0}
@@ -179,11 +230,11 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
           `Pay ₹${displayAmount}`
         )}
       </Button>
-      
+
       <p className="text-xs text-gray-500 text-center mt-2">
         You will be redirected to a secure payment gateway
       </p>
-      
+
       {isProcessing && (
         <p className="text-xs text-amber-600 text-center mt-1">
           Please do not close this window or press back button

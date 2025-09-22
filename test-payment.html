@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Test - Bengal Bay</title>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; }
+        button { background: #F59E0B; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; }
+        button:hover { background: #D97706; }
+        .result { margin-top: 20px; padding: 15px; border-radius: 6px; }
+        .success { background: #D1FAE5; color: #065F46; }
+        .error { background: #FEE2E2; color: #991B1B; }
+    </style>
+</head>
+<body>
+    <h1>Bengal Bay Payment Test</h1>
+    <p>This is a simple test to verify Razorpay integration works correctly.</p>
+    
+    <button onclick="testPayment()">Test Payment (₹100)</button>
+    
+    <div id="result"></div>
+
+    <script>
+        function testPayment() {
+            const options = {
+                key: 'rzp_test_RJ8qybQN1ECcEw',
+                amount: 10000, // ₹100 in paise
+                currency: 'INR',
+                name: 'Bengal Bay',
+                description: 'Test Payment',
+                order_id: 'test_order_' + Date.now(),
+                handler: function (response) {
+                    document.getElementById('result').innerHTML = 
+                        '<div class="result success"><strong>Payment Successful!</strong><br>' +
+                        'Payment ID: ' + response.razorpay_payment_id + '<br>' +
+                        'Order ID: ' + response.razorpay_order_id + '</div>';
+                },
+                prefill: {
+                    name: 'Test User',
+                    email: 'test@example.com',
+                    contact: '+918250565455'
+                },
+                theme: {
+                    color: '#F59E0B'
+                }
+            };
+
+            const rzp = new Razorpay(options);
+            
+            rzp.on('payment.failed', function (response) {
+                document.getElementById('result').innerHTML = 
+                    '<div class="result error"><strong>Payment Failed!</strong><br>' +
+                    'Error: ' + response.error.description + '</div>';
+            });
+
+            rzp.open();
+        }
+    </script>
+</body>
+</html>

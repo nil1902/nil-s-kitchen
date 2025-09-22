@@ -12,6 +12,7 @@ import {
   CreditCard,
   Edit,
 } from "lucide-react";
+import ErrorBoundary from "@/components/common/ErrorBoundary";
 import PaymentOptions from "@/components/checkout/PaymentOptions";
 import AddressForm, { AddressData } from "@/components/checkout/AddressForm";
 import {
@@ -190,7 +191,16 @@ const CheckoutPage = () => {
           </TabsList>
 
           <TabsContent value="payment">
-            <PaymentOptions onPaymentComplete={handlePaymentComplete} />
+            <ErrorBoundary fallback={
+              <div className="p-8 text-center">
+                <p className="text-red-600 mb-4">Payment system encountered an error.</p>
+                <Button onClick={() => window.location.reload()} className="bg-amber-600 hover:bg-amber-700 text-white">
+                  Refresh Page
+                </Button>
+              </div>
+            }>
+              <PaymentOptions onPaymentComplete={handlePaymentComplete} />
+            </ErrorBoundary>
           </TabsContent>
         </Tabs>
       ) : (
