@@ -64,9 +64,8 @@ export const verifyPayment = async (paymentData: any) => {
   try {
     console.log("Verifying payment:", paymentData.razorpay_payment_id);
     
-    // Smart API URL detection
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 
-      (window.location.hostname === 'localhost' ? 'http://localhost:5000' : window.location.origin);
+    // Using Render backend URL
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://bengal-bay-api.onrender.com";
     
     // Add timeout to prevent hanging
     const controller = new AbortController();

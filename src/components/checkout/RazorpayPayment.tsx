@@ -71,11 +71,10 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
       try {
         console.log("Creating order with amount:", amount);
 
-        // Smart API URL detection
-        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 
-          (window.location.hostname === 'localhost' ? 'http://localhost:5000' : window.location.origin);
-        console.log("Using API Base URL:", API_BASE_URL);
-        console.log("Environment:", window.location.hostname === 'localhost' ? 'Development' : 'Production');
+        // Using Render backend URL
+        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://bengal-bay-api.onrender.com";
+        console.log("🔗 Using API Base URL:", API_BASE_URL);
+        console.log("🌐 Backend Status: Connected to Render");
 
         // Add timeout to prevent hanging
         const controller = new AbortController();
