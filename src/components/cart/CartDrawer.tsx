@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo, useCallback, useMemo, useState, useEffect } from "react";
 import { useCart } from "./CartContext";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -19,41 +19,156 @@ interface CartDrawerProps {
   children?: React.ReactNode;
 }
 
+// Skeleton component for instant loading
+const CartSkeleton = memo(() => (
+  <div className="space-y-4">
+    {[1, 2, 3].map((i) => (
+      <div key={i} className="flex gap-4 animate-pulse">
+        <div className="h-20 w-20 rounded-md bg-gray-200"></div>
+        <div className="flex-1 space-y-2">
+          <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+          <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+          <div className="flex justify-between items-center">
+            <div className="h-8 w-24 bg-gray-200 rounded"></div>
+            <div className="h-4 w-16 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+));
+
+// Memoized CartItem component to prevent unnecessary re-renders
+const CartItem = memo(({ item, onRemove, onUpdateQuantity }: {
+  item: any;
+  onRemove: (id: string) => void;
+  onUpdateQuantity: (id: string, quantity: number) => void;
+}) => {
+  const formatPrice = useCallback((price: number) => `₹${price.toFixed(2)}`, []);
+  const [imageLoaded, setImageLoaded] = useState(false);
+
+  return (
+    <div className="flex gap-4">
+      <div className="h-20 w-20 rounded-md overflow-hidden bg-muted relative">
+        {!imageLoaded && (
+          <div className="absolute inset-0 bg-gray-200 animate-pulse"></div>
+        )}
+        <img
+          src={item.image}
+          alt={item.name}
+          className={`h-full w-full object-cover transition-opacity duration-200 ${
+            imageLoaded ? 'opacity-100' : 'opacity-0'
+          }`}
+          loading="lazy"
+          onLoad={() => setImageLoaded(true)}
+        />
+      </div>
+      <div className="flex-1 flex flex-col">
+        <div className="flex justify-between">
+          <h4 className="font-medium">{item.name}</h4>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6 text-muted-foreground hover:text-destructive"
+            onClick={() => onRemove(item.id)}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+        <p className="text-sm text-muted-foreground line-clamp-1">
+          {item.description}
+        </p>
+        <div className="mt-auto flex items-center justify-between">
+          <div className="flex items-center border rounded-md">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 rounded-none"
+              onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
+            >
+              <Minus className="h-3 w-3" />
+            </Button>
+            <span className="w-8 text-center">{item.quantity}</span>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 rounded-none"
+              onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
+            >
+              <Plus className="h-3 w-3" />
+            </Button>
+          </div>
+          <p className="font-medium">
+            {formatPrice(item.price * item.quantity)}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+});
+
 const CartDrawer: React.FC<CartDrawerProps> = ({ children }) => {
   const { cartItems, removeFromCart, updateQuantity, cartTotal, cartCount } =
     useCart();
   const { currentUser } = useAuth();
   const navigate = useNavigate();
-  const [isOpen, setIsOpen] = React.useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isPreloaded, setIsPreloaded] = useState(false);
+  const [showSkeleton, setShowSkeleton] = useState(false);
 
-  const handleCheckout = () => {
+  // Preload cart data on hover for instant opening
+  const handleMouseEnter = useCallback(() => {
+    if (!isPreloaded) {
+      setIsPreloaded(true);
+      // Preload images
+      cartItems.forEach(item => {
+        const img = new Image();
+        img.src = item.image;
+      });
+    }
+  }, [cartItems, isPreloaded]);
+
+  // Handle cart opening with skeleton
+  const handleOpenChange = useCallback((open: boolean) => {
+    if (open && cartItems.length > 0) {
+      setShowSkeleton(true);
+      // Show skeleton briefly for perceived performance
+      setTimeout(() => setShowSkeleton(false), 150);
+    }
+    setIsOpen(open);
+  }, [cartItems.length]);
+
+  const handleCheckout = useCallback(() => {
     if (!currentUser) {
       setIsOpen(false);
       navigate("/login");
     } else {
-      // Proceed to checkout
       setIsOpen(false);
       navigate("/checkout");
     }
-  };
+  }, [currentUser, navigate]);
 
-  const formatPrice = (price: number) => {
-    return `₹${price.toFixed(2)}`;
-  };
+  const formatPrice = useCallback((price: number) => `₹${price.toFixed(2)}`, []);
+
+  // Memoized calculations
+  const taxAmount = useMemo(() => cartTotal * 0.05, [cartTotal]);
+  const finalTotal = useMemo(() => cartTotal + taxAmount, [cartTotal, taxAmount]);
 
   return (
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
+    <Sheet open={isOpen} onOpenChange={handleOpenChange}>
       <SheetTrigger asChild>
-        {children || (
-          <Button variant="ghost" size="icon" className="relative">
-            <ShoppingCart className="h-5 w-5" />
-            {cartCount > 0 && (
-              <span className="absolute -top-2 -right-2 bg-amber-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                {cartCount}
-              </span>
-            )}
-          </Button>
-        )}
+        <div onMouseEnter={handleMouseEnter}>
+          {children || (
+            <Button variant="ghost" size="icon" className="relative">
+              <ShoppingCart className="h-5 w-5" />
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-amber-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
+            </Button>
+          )}
+        </div>
       </SheetTrigger>
       <SheetContent className="w-full sm:max-w-md flex flex-col">
         <SheetHeader className="space-y-2 pb-4">
@@ -82,65 +197,20 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ children }) => {
         ) : (
           <>
             <div className="flex-1 overflow-auto py-4">
-              <div className="space-y-4">
-                {cartItems.map((item) => (
-                  <div key={item.id} className="flex gap-4">
-                    <div className="h-20 w-20 rounded-md overflow-hidden bg-muted">
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                    <div className="flex-1 flex flex-col">
-                      <div className="flex justify-between">
-                        <h4 className="font-medium">{item.name}</h4>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-6 w-6 text-muted-foreground hover:text-destructive"
-                          onClick={() => removeFromCart(item.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      <p className="text-sm text-muted-foreground line-clamp-1">
-                        {item.description}
-                      </p>
-                      <div className="mt-auto flex items-center justify-between">
-                        <div className="flex items-center border rounded-md">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 rounded-none"
-                            onClick={() =>
-                              updateQuantity(item.id, item.quantity - 1)
-                            }
-                          >
-                            <Minus className="h-3 w-3" />
-                          </Button>
-                          <span className="w-8 text-center">
-                            {item.quantity}
-                          </span>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 rounded-none"
-                            onClick={() =>
-                              updateQuantity(item.id, item.quantity + 1)
-                            }
-                          >
-                            <Plus className="h-3 w-3" />
-                          </Button>
-                        </div>
-                        <p className="font-medium">
-                          {formatPrice(item.price * item.quantity)}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              {showSkeleton ? (
+                <CartSkeleton />
+              ) : (
+                <div className="space-y-4">
+                  {cartItems.map((item) => (
+                    <CartItem
+                      key={item.id}
+                      item={item}
+                      onRemove={removeFromCart}
+                      onUpdateQuantity={updateQuantity}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="space-y-4 pt-4">
@@ -156,12 +226,12 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ children }) => {
                 </div>
                 <div className="flex justify-between">
                   <span>Tax (5%)</span>
-                  <span>{formatPrice(cartTotal * 0.05)}</span>
+                  <span>{formatPrice(taxAmount)}</span>
                 </div>
                 <Separator />
                 <div className="flex justify-between font-medium">
                   <span>Total</span>
-                  <span>{formatPrice(cartTotal + cartTotal * 0.05)}</span>
+                  <span>{formatPrice(finalTotal)}</span>
                 </div>
               </div>
 

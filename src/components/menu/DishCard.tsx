@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo, useCallback, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -24,7 +24,7 @@ interface DishCardProps {
   onFavorite?: (id: string) => void;
 }
 
-const DishCard = ({
+const DishCard = memo(({
   id = "1",
   name = "Spicy Chicken Pasta",
   description = "Tender chicken pieces in a spicy tomato sauce with fresh herbs and parmesan cheese.",
@@ -38,8 +38,35 @@ const DishCard = ({
   onFavorite = () => {},
 }: DishCardProps) => {
   const { cartItems, addToCart, updateQuantity } = useCart();
-  const cartItem = cartItems.find((item) => item.id === id);
+  
+  // Memoized cart item lookup
+  const cartItem = useMemo(() => 
+    cartItems.find((item) => item.id === id), 
+    [cartItems, id]
+  );
+  
   const quantity = cartItem ? cartItem.quantity : 0;
+
+  // Memoized callbacks to prevent unnecessary re-renders
+  const handleAddToCart = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    addToCart({ id, name, description, price, image, rating, category, type: "veg", isSpecial });
+  }, [id, name, description, price, image, rating, category, isSpecial, addToCart]);
+
+  const handleIncreaseQuantity = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    updateQuantity(id, quantity + 1);
+  }, [id, quantity, updateQuantity]);
+
+  const handleDecreaseQuantity = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    updateQuantity(id, quantity - 1);
+  }, [id, quantity, updateQuantity]);
+
+  const handleFavorite = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    onFavorite(id);
+  }, [id, onFavorite]);
 
   return (
     <Card className="w-full max-w-[300px] sm:max-w-[340px] md:max-w-[360px] lg:max-w-[300px] h-[390px] md:h-[410px] flex flex-col overflow-hidden transition-all duration-300 hover:shadow-lg bg-white">
@@ -61,10 +88,7 @@ const DishCard = ({
           variant="ghost"
           size="icon"
           className={`absolute right-2 top-2 bg-white/80 ${isFavorite ? "text-red-600" : "text-red-500"} hover:bg-white hover:text-red-600 transition-transform duration-200 ${isFavorite ? "scale-110" : "hover:scale-110"}`}
-          onClick={(e) => {
-            e.stopPropagation();
-            onFavorite(id);
-          }}
+          onClick={handleFavorite}
         >
           <Heart
             className={`h-5 w-5 ${isFavorite ? "fill-current" : ""} transition-all duration-300 hover:scale-110`}
@@ -95,18 +119,15 @@ const DishCard = ({
         </span>
         {quantity > 0 ? (
           <div className="flex items-center gap-2">
-            <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); updateQuantity(id, quantity - 1); }} aria-label="Decrease quantity">-</Button>
+            <Button size="sm" variant="outline" onClick={handleDecreaseQuantity} aria-label="Decrease quantity">-</Button>
             <span className="min-w-[24px] text-center">{quantity}</span>
-            <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); updateQuantity(id, quantity + 1); }} aria-label="Increase quantity">+</Button>
+            <Button size="sm" variant="outline" onClick={handleIncreaseQuantity} aria-label="Increase quantity">+</Button>
           </div>
         ) : (
           <Button
             size="sm"
             className="bg-primary text-white hover:bg-primary/90 flex-shrink-0 text-xs md:text-sm px-2 md:px-3"
-            onClick={(e) => {
-              e.stopPropagation();
-              addToCart({ id, name, description, price, image, rating, category, type: "veg", isSpecial });
-            }}
+            onClick={handleAddToCart}
             aria-label="Add to cart"
           >
             <ShoppingCart className="mr-1 md:mr-2 h-4 w-4" />
@@ -116,6 +137,6 @@ const DishCard = ({
       </CardFooter>
     </Card>
   );
-};
+});
 
 export default DishCard;

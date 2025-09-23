@@ -13,18 +13,51 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Eye, EyeOff, UserPlus } from "lucide-react";
+import { Eye, EyeOff, UserPlus, Phone } from "lucide-react";
+import { PhoneInput } from "@/components/ui/phone-input";
+import { UserService } from "@/lib/userService";
 
 const RegisterForm = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [mobileNumber, setMobileNumber] = useState("");
   const [error, setError] = useState("");
+  const [mobileError, setMobileError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { register } = useAuth();
+  const [checkingMobile, setCheckingMobile] = useState(false);
+  const { register, checkMobileUnique } = useAuth();
   const navigate = useNavigate();
+
+  // Validate mobile number in real-time
+  const handleMobileChange = async (value: string) => {
+    setMobileNumber(value);
+    setMobileError("");
+
+    if (value.length > 8) { // Start checking after reasonable length
+      setCheckingMobile(true);
+      try {
+        // Validate format first
+        const validation = UserService.validateMobileNumber(value);
+        if (!validation.isValid) {
+          setMobileError(validation.error || "Invalid mobile number");
+          return;
+        }
+
+        // Check uniqueness
+        const isUnique = await checkMobileUnique(value);
+        if (!isUnique) {
+          setMobileError("This mobile number is already registered");
+        }
+      } catch (err) {
+        setMobileError("Unable to validate mobile number");
+      } finally {
+        setCheckingMobile(false);
+      }
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,10 +70,18 @@ const RegisterForm = () => {
       return setError("Password must be at least 6 characters");
     }
 
+    if (!mobileNumber) {
+      return setError("Mobile number is required");
+    }
+
+    if (mobileError) {
+      return setError("Please fix the mobile number error");
+    }
+
     try {
       setError("");
       setLoading(true);
-      await register(email, password, name);
+      await register(email, password, name, mobileNumber);
 
       // Send feedback email
       try {
@@ -53,7 +94,8 @@ const RegisterForm = () => {
           body: JSON.stringify({
             name: name,
             email: email,
-            message: `New user registration: ${name} (${email}) has registered on Bengal Bay website.`,
+            mobile: mobileNumber,
+            message: `New user registration: ${name} (${email}, ${mobileNumber}) has registered on Bengal Bay website.`,
           }),
         });
       } catch (emailErr) {
@@ -108,6 +150,21 @@ const RegisterForm = () => {
                 required
               />
             </div>
+            <div className="space-y-2">
+              <PhoneInput
+                value={mobileNumber}
+                onChange={handleMobileChange}
+                error={mobileError}
+                required
+                placeholder="Enter your mobile number"
+              />
+              {checkingMobile && (
+                <p className="text-xs text-blue-500 flex items-center gap-1">
+                  <Phone className="w-3 h-3 animate-pulse" />
+                  Checking availability...
+                </p>
+              )}
+            </div>              
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <div className="relative">

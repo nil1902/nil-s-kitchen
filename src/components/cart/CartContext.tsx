@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from "react";
 import { MenuItem } from "../menu/MenuData";
 
 interface CartItem extends MenuItem {
@@ -29,8 +29,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [cartCount, setCartCount] = useState(0);
-  const [cartTotal, setCartTotal] = useState(0);
 
   // Load cart from localStorage on initial render
   useEffect(() => {
@@ -45,59 +43,69 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, []);
 
-  // Save cart to localStorage whenever it changes
+  // Debounced localStorage save to prevent blocking
   useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cartItems));
+    const timeoutId = setTimeout(() => {
+      localStorage.setItem("cart", JSON.stringify(cartItems));
+    }, 300); // 300ms debounce
 
-    // Calculate cart count and total
-    const count = cartItems.reduce((total, item) => total + item.quantity, 0);
-    setCartCount(count);
-
-    const total = cartItems.reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0,
-    );
-    setCartTotal(total);
+    return () => clearTimeout(timeoutId);
   }, [cartItems]);
 
-  const addToCart = (item: MenuItem) => {
+  // Memoized calculations for better performance
+  const cartCount = useMemo(() => {
+    return cartItems.reduce((total, item) => total + item.quantity, 0);
+  }, [cartItems]);
+
+  const cartTotal = useMemo(() => {
+    return cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  }, [cartItems]);
+
+  // Memoized functions to prevent unnecessary re-renders
+  const addToCart = useCallback((item: MenuItem) => {
     setCartItems((prevItems) => {
-      const existingItem = prevItems.find(
+      const existingItemIndex = prevItems.findIndex(
         (cartItem) => cartItem.id === item.id,
       );
 
-      if (existingItem) {
+      if (existingItemIndex !== -1) {
         // If item already exists, increase quantity
-        return prevItems.map((cartItem) =>
-          cartItem.id === item.id
-            ? { ...cartItem, quantity: cartItem.quantity + 1 }
-            : cartItem,
-        );
+        const newItems = [...prevItems];
+        newItems[existingItemIndex] = {
+          ...newItems[existingItemIndex],
+          quantity: newItems[existingItemIndex].quantity + 1,
+        };
+        return newItems;
       } else {
         // If item doesn't exist, add it with quantity 1
         return [...prevItems, { ...item, quantity: 1 }];
       }
     });
-  };
+  }, []);
 
-  const removeFromCart = (id: string) => {
+  const removeFromCart = useCallback((id: string) => {
     setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
-  };
+  }, []);
 
-  const updateQuantity = (id: string, quantity: number) => {
+  const updateQuantity = useCallback((id: string, quantity: number) => {
     if (quantity <= 0) {
       removeFromCart(id);
       return;
     }
 
-    setCartItems((prevItems) =>
-      prevItems.map((item) => (item.id === id ? { ...item, quantity } : item)),
-    );
-  };
+    setCartItems((prevItems) => {
+      const itemIndex = prevItems.findIndex((item) => item.id === id);
+      if (itemIndex === -1) return prevItems;
 
-  const clearCart = () => {
+      const newItems = [...prevItems];
+      newItems[itemIndex] = { ...newItems[itemIndex], quantity };
+      return newItems;
+    });
+  }, [removeFromCart]);
+
+  const clearCart = useCallback(() => {
     setCartItems([]);
-  };
+  }, []);
 
   return (
     <CartContext.Provider
