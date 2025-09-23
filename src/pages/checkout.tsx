@@ -157,7 +157,7 @@ const CheckoutPage = () => {
             <div className="space-y-4">
               <div className="flex justify-between text-sm">
                 <span>Items ({cartItems.length})</span>
-                <span>?{cartTotal.toFixed(2)}</span>
+                <span>₹{cartTotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span>Delivery</span>
@@ -165,16 +165,16 @@ const CheckoutPage = () => {
               </div>
               <div className="flex justify-between text-sm">
                 <span>Tax (5%)</span>
-                <span>?{(cartTotal * 0.05).toFixed(2)}</span>
+                <span>₹{(cartTotal * 0.05).toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span>Protect Fee</span>
-                <span>?9.00</span>
+                <span>₹9.00</span>
               </div>
               <Separator />
               <div className="flex justify-between font-semibold">
                 <span>Total</span>
-                <span>?{(cartTotal + cartTotal * 0.05 + 9).toFixed(2)}</span>
+                <span>₹{(cartTotal + cartTotal * 0.05 + 9).toFixed(2)}</span>
               </div>
             </div>
           </div>

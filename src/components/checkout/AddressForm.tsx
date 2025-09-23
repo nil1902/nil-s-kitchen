@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MapPin } from "lucide-react";
+import { MapPin, Loader2, CheckCircle, AlertCircle } from "lucide-react";
 
 interface AddressFormProps {
   onSave: (address: AddressData) => void;
@@ -96,6 +96,11 @@ const AddressForm: React.FC<AddressFormProps> = ({
     },
   );
 
+  // Location detection states
+  const [isDetectingLocation, setIsDetectingLocation] = useState(false);
+  const [locationStatus, setLocationStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [locationMessage, setLocationMessage] = useState('');
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -106,17 +111,117 @@ const AddressForm: React.FC<AddressFormProps> = ({
     onSave(formData);
   };
 
-  const handleUseCurrentLocation = () => {
-    // In a real app, this would use the Geolocation API
-    // For demo purposes, we'll just set some mock data
-    setFormData({
-      ...formData,
-      locality: "Current Location Area",
-      address: "123 Current Street",
-      city: "Mumbai",
-      state: "Maharashtra",
-      pincode: "400001",
-    });
+  // Real geolocation implementation
+  const handleUseCurrentLocation = async () => {
+    if (!navigator.geolocation) {
+      setLocationStatus('error');
+      setLocationMessage('Geolocation is not supported by this browser');
+      return;
+    }
+
+    setIsDetectingLocation(true);
+    setLocationStatus('idle');
+    setLocationMessage('Detecting your location...');
+
+    try {
+      // Get user's coordinates
+      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(
+          resolve,
+          reject,
+          {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 300000 // 5 minutes cache
+          }
+        );
+      });
+
+      const { latitude, longitude } = position.coords;
+      setLocationMessage('Getting address details...');
+
+      // Reverse geocoding using OpenStreetMap Nominatim (free service)
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&addressdetails=1`,
+        {
+          headers: {
+            'User-Agent': 'Bengal-Bay-Restaurant-App'
+          }
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to get address details');
+      }
+
+      const data = await response.json();
+
+      if (!data || !data.address) {
+        throw new Error('Unable to determine address from location');
+      }
+
+      // Parse the address data
+      const addressData = data.address;
+      const displayName = data.display_name;
+
+      // Extract address components with fallbacks
+      const houseNumber = addressData.house_number || '';
+      const road = addressData.road || addressData.street || '';
+      const suburb = addressData.suburb || addressData.neighbourhood || addressData.locality || '';
+      const city = addressData.city || addressData.town || addressData.village || addressData.municipality || '';
+      const state = addressData.state || addressData.region || '';
+      const postcode = addressData.postcode || '';
+      const country = addressData.country || '';
+
+      // Build address string
+      const addressParts = [houseNumber, road].filter(Boolean);
+      const fullAddress = addressParts.length > 0 ? addressParts.join(' ') : displayName.split(',')[0];
+
+      // Update form with detected location
+      setFormData(prev => ({
+        ...prev,
+        address: fullAddress || 'Current Location',
+        locality: suburb || road || 'Current Area',
+        city: city || 'Current City',
+        state: state || prev.state, // Keep existing state if not detected
+        pincode: postcode || prev.pincode, // Keep existing pincode if not detected
+      }));
+
+      setLocationStatus('success');
+      setLocationMessage(`✅ Location detected: ${city || 'Current City'}, ${state || 'Current State'}`);
+
+      // Clear success message after 3 seconds
+      setTimeout(() => {
+        setLocationStatus('idle');
+        setLocationMessage('');
+      }, 3000);
+
+    } catch (error: any) {
+      console.error('Location detection error:', error);
+
+      let errorMessage = 'Unable to detect location';
+
+      if (error.code === 1) {
+        errorMessage = 'Location access denied. Please allow location access and try again.';
+      } else if (error.code === 2) {
+        errorMessage = 'Location unavailable. Please check your GPS/internet connection.';
+      } else if (error.code === 3) {
+        errorMessage = 'Location request timed out. Please try again.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      setLocationStatus('error');
+      setLocationMessage(errorMessage);
+
+      // Clear error message after 5 seconds
+      setTimeout(() => {
+        setLocationStatus('idle');
+        setLocationMessage('');
+      }, 5000);
+    } finally {
+      setIsDetectingLocation(false);
+    }
   };
 
   return (
@@ -307,15 +412,37 @@ const AddressForm: React.FC<AddressFormProps> = ({
         </div>
 
         {/* Use Current Location Button */}
-        <Button
-          type="button"
-          variant="outline"
-          className="w-full"
-          onClick={handleUseCurrentLocation}
-        >
-          <MapPin className="mr-2 h-4 w-4" />
-          Use my current location
-        </Button>
+        <div className="space-y-2">
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={handleUseCurrentLocation}
+            disabled={isDetectingLocation}
+          >
+            {isDetectingLocation ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <MapPin className="mr-2 h-4 w-4" />
+            )}
+            {isDetectingLocation ? 'Detecting location...' : 'Use my current location'}
+          </Button>
+
+          {/* Location status message */}
+          {locationMessage && (
+            <div className={`flex items-center gap-2 text-sm p-2 rounded-md ${locationStatus === 'success'
+                ? 'text-green-700 bg-green-50 border border-green-200'
+                : locationStatus === 'error'
+                  ? 'text-red-700 bg-red-50 border border-red-200'
+                  : 'text-blue-700 bg-blue-50 border border-blue-200'
+              }`}>
+              {locationStatus === 'success' && <CheckCircle className="h-4 w-4" />}
+              {locationStatus === 'error' && <AlertCircle className="h-4 w-4" />}
+              {locationStatus === 'idle' && <Loader2 className="h-4 w-4 animate-spin" />}
+              <span>{locationMessage}</span>
+            </div>
+          )}
+        </div>
 
         <div className="flex justify-end space-x-4 pt-4">
           <Button type="button" variant="outline" onClick={onCancel}>
