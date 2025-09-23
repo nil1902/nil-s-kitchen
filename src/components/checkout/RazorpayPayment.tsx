@@ -71,10 +71,19 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
       try {
         console.log("Creating order with amount:", amount);
 
-        // Using Render backend URL
+        // Using Render backend URL - FORCE CORRECT URL
         const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "https://bengal-bay-api.onrender.com";
+        
+        // Debug environment variables
+        console.log("🔍 Environment Debug:");
+        console.log("VITE_BACKEND_URL:", import.meta.env.VITE_BACKEND_URL);
         console.log("🔗 Using Backend URL:", API_BASE_URL);
         console.log("🌐 Backend Status: Connected to Render");
+        
+        // Safety check - prevent using wrong URL
+        if (API_BASE_URL.includes("your-vercel-app")) {
+          throw new Error("Environment variable not loaded correctly. Please refresh and try again.");
+        }
 
         // Add timeout to prevent hanging
         const controller = new AbortController();

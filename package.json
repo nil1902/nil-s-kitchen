@@ -6,10 +6,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "node debug-build.js && vite build",
     "preview": "vite preview",
     "deploy": "gh-pages -d dist",
-    "vercel-build": "vite build"
+    "vercel-build": "node debug-build.js && vite build"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.6.0",
