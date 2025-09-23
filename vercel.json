@@ -1,8 +1,8 @@
 {
-  "buildCommand": "npm run build",
+  "buildCommand": "pnpm build",
   "outputDirectory": "dist",
   "framework": "vite",
-  "installCommand": "npm install --no-optional",
+  "installCommand": "corepack enable && pnpm install --frozen-lockfile",
   "git": {
     "deploymentEnabled": {
       "main": true
