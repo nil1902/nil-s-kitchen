@@ -6,11 +6,13 @@ import { RefreshCw } from "lucide-react";
 interface CodPaymentFormProps {
   onSubmit: () => void;
   amount: number;
+  isProcessing?: boolean;
 }
 
 const CodPaymentForm: React.FC<CodPaymentFormProps> = ({
   onSubmit,
   amount,
+  isProcessing = false,
 }) => {
   const [captcha, setCaptcha] = useState("");
   const [captchaImage, setCaptchaImage] = useState("");
@@ -126,9 +128,17 @@ const CodPaymentForm: React.FC<CodPaymentFormProps> = ({
       <div className="pt-4">
         <Button
           type="submit"
-          className="w-full bg-amber-600 hover:bg-amber-700 text-white py-6 text-lg"
+          disabled={isProcessing}
+          className="w-full bg-amber-600 hover:bg-amber-700 disabled:bg-gray-400 text-white py-6 text-lg transition-colors"
         >
-          Confirm Order
+          {isProcessing ? (
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              Processing COD Order...
+            </div>
+          ) : (
+            "Confirm Cash on Delivery Order"
+          )}
         </Button>
       </div>
 

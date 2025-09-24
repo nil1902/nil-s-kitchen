@@ -31,9 +31,16 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [isPaymentComplete, setIsPaymentComplete] = useState<boolean>(false);
   const [orderId, setOrderId] = useState<string>("");
+  const [isCODComplete, setIsCODComplete] = useState<boolean>(false);
+  const [codOTP, setCodOTP] = useState<string>("");
   const { cartTotal, cartItems, clearCart } = useCart();
   const { currentUser } = useAuth();
   const navigate = useNavigate();
+
+  // Generate 7-digit OTP for COD orders
+  const generateCODOTP = () => {
+    return Math.floor(1000000 + Math.random() * 9000000).toString();
+  };
 
   // Countdown timer
   const [countdown, setCountdown] = useState<{
@@ -100,11 +107,19 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
       });
 
       setOrderId(randomOrderId);
-      setIsPaymentComplete(true);
 
       console.log("🚀 Calling onPaymentComplete with data:", paymentData);
       onPaymentComplete(paymentData);
       console.log("✅ onPaymentComplete called successfully");
+
+      // 🏠 DIRECT REDIRECT TO HOMEPAGE (Same as COD)
+      console.log("🏠 Razorpay payment successful - redirecting to homepage");
+      clearCart();
+      navigate("/", { replace: false });
+      // Ensure scroll to top after navigation
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 100);
 
       // Also make a direct Google Sheets call as backup
       console.log("🔄 Making direct Google Sheets backup call...");
@@ -162,7 +177,7 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
         setIsProcessing(false);
       } else {
         // User chose not to retry, redirect to menu
-        navigate("/menu");
+        navigate("/home");
       }
     }
   };
@@ -223,7 +238,7 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
     }
   };
 
-  const sendConfirmationEmail = async (orderId: string) => {
+  const sendConfirmationEmail = async (orderId: string, otpCode?: string) => {
     const userEmail = currentUser?.email || "guest@example.com";
     const userName = currentUser?.displayName || "Guest User";
     const tax = cartTotal * 0.05;
@@ -274,6 +289,17 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
         ═══════════════════════════════════════
         Payment Method: ${paymentMethod === "razorpay" ? "Online Payment (Razorpay)" : "Cash on Delivery"}
         Payment Status: ${paymentMethod === "razorpay" ? "✅ Completed" : "⏳ Pending (COD)"}
+        ${paymentMethod === "cod" && otpCode ? `
+        � DELIVERTY VERIFICATION OTP:
+        ═══════════════════════════════════════
+        Your Delivery OTP: ${otpCode}
+        
+        📱 IMPORTANT INSTRUCTIONS:
+        • Show this OTP to the delivery person
+        • Keep this OTP safe until delivery is complete
+        • This ensures secure order delivery
+        • Payment: ₹${totalAmount.toFixed(2)} (Cash on Delivery)
+        ` : ''}
 
         📦 ORDER STATUS:
         ═══════════════════════════════════════
@@ -309,23 +335,117 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
     }
   };
 
-  const handleCodSubmit = () => {
-    const randomOrderId = `ORD-${Math.floor(Math.random() * 1000000)}`;
-    setOrderId(randomOrderId);
-    setIsPaymentComplete(true);
+  const handleCodSubmit = async () => {
+    if (isProcessing) {
+      console.log("COD order already being processed, ignoring duplicate call");
+      return;
+    }
 
-    // COD payment data
-    const codPaymentData = {
-      payment_method: "cod",
-      order_id: randomOrderId,
-      amount: grandTotal
-    };
+    setIsProcessing(true);
 
-    onPaymentComplete(codPaymentData);
+    try {
+      console.log("🚚 Processing Cash on Delivery order...");
 
-    // Save COD order
-    saveCodOrder(randomOrderId);
-    sendConfirmationEmail(randomOrderId);
+      const randomOrderId = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+      setOrderId(randomOrderId);
+
+      // COD payment data (same format as Razorpay for consistency)
+      const codPaymentData = {
+        payment_method: "cod",
+        razorpay_order_id: randomOrderId,
+        razorpay_payment_id: `cod_${Date.now()}`,
+        razorpay_signature: `cod_signature_${Date.now()}`,
+        amount: grandTotal,
+        _isCOD: true
+      };
+
+      // Generate 7-digit OTP for security FIRST
+      const generatedOTP = generateCODOTP();
+      setCodOTP(generatedOTP);
+      console.log("🔐 Generated COD OTP:", generatedOTP);
+
+      // 🚀 LOG COD ORDER TO GOOGLE SHEETS (Same as Razorpay)
+      console.log("📊 Logging COD order to Google Sheets...");
+
+      const backendOrderData = {
+        orderId: randomOrderId,
+        customerName: currentUser?.displayName || "Guest User",
+        phone: "9876543210", // You can get this from address form
+        email: currentUser?.email || "guest@example.com",
+        itemsCount: cartItems.length,
+        totalAmount: `₹${grandTotal.toFixed(2)}`,
+        paymentStatus: "Pending (COD)",
+        transactionMode: "Cash on Delivery",
+        orderDate: new Date().toLocaleString('en-IN', {
+          timeZone: 'Asia/Kolkata',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        }),
+        deliveryAddress: "Customer Address", // You can get this from address form
+        paymentId: `cod_${Date.now()}`
+      };
+
+      // Enhanced backend order data with OTP
+      const enhancedOrderData = {
+        ...backendOrderData,
+        deliveryOTP: generatedOTP,
+        orderStatus: "Confirmed - Preparing",
+        otpVerified: false,
+        deliveryVerificationTime: null
+      };
+
+      // Direct API call to backend for Google Sheets logging
+      const sheetsResponse = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'https://bengal-bay-api.onrender.com'}/api/log-order`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(enhancedOrderData),
+      });
+
+      const sheetsResult = await sheetsResponse.json();
+
+      if (sheetsResult.success) {
+        console.log("✅ COD order logged to Google Sheets successfully:", sheetsResult);
+
+        // Save COD order locally
+        saveCodOrder(randomOrderId);
+
+        // Send confirmation email with OTP for COD orders
+        sendConfirmationEmail(randomOrderId, generatedOTP).catch(error => {
+          console.warn("Failed to send COD confirmation email:", error);
+        });
+
+        // Show special COD success dialog with OTP
+        setIsCODComplete(true);
+
+        // DON'T call parent completion handler yet - let user manually proceed
+        console.log("🔐 COD OTP card will be shown to user");
+        console.log("✅ COD order completed successfully with OTP:", generatedOTP);
+
+        // Parent completion will be called when user clicks "Return to Home"
+
+      } else {
+        console.error("❌ COD Google Sheets API Error:", sheetsResult.error);
+        throw new Error("Failed to log order to system. Please try again.");
+      }
+
+    } catch (error: any) {
+      console.error("❌ COD order processing error:", error);
+
+      const errorMessage = error.message || "Failed to process COD order. Please try again.";
+
+      if (window.confirm(`Error: ${errorMessage}\n\nWould you like to try again?`)) {
+        setIsProcessing(false);
+      } else {
+        navigate("/home");
+      }
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const saveCodOrder = async (orderId: string) => {
@@ -490,6 +610,7 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
                     <CodPaymentForm
                       onSubmit={handleCodSubmit}
                       amount={grandTotal}
+                      isProcessing={isProcessing}
                     />
                   </div>
                 )}
@@ -608,8 +729,8 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
         </Card>
       </div>
 
-      {/* Payment Confirmation Dialog */}
-      <Dialog open={isPaymentComplete} onOpenChange={setIsPaymentComplete}>
+      {/* Payment Confirmation Dialog - DISABLED (Direct redirect to homepage) */}
+      <Dialog open={false} onOpenChange={setIsPaymentComplete}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Order Placed Successfully!</DialogTitle>
@@ -665,13 +786,201 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
               onClick={() => {
                 setIsPaymentComplete(false);
                 clearCart();
-                navigate("/");
+                navigate("/", { replace: false });
+                // Ensure scroll to top after navigation
+                setTimeout(() => {
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }, 100);
               }}
               className="bg-amber-600 hover:bg-amber-700 text-white"
             >
               Continue Shopping
             </Button>
 
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* COD Success Dialog with OTP */}
+      <Dialog open={isCODComplete} onOpenChange={() => { }} modal={true}>
+        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto [&>button[aria-label*='Close']]:hidden [&>button[data-dialog-close]]:hidden [&>.absolute.right-4.top-4]:hidden">
+          <DialogHeader>
+            <DialogTitle className="text-center text-green-600 text-xl">🎉 Order confirmed successfully!</DialogTitle>
+            <DialogDescription className="text-center text-gray-600">
+
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col items-center py-6">
+            <div className="rounded-full bg-green-100 p-4 mb-6">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="32"
+                height="32"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="text-green-600"
+              >
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+            </div>
+
+            <div className="text-center space-y-4 w-full">
+              <p className="font-medium text-lg">
+                Thank you, {currentUser?.displayName || "Guest"}!
+              </p>
+
+              {/* OTP Security Section */}
+              <div className="bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-300 rounded-xl p-6 shadow-lg">
+                <div className="flex items-center justify-center mb-4">
+                  <div className="bg-amber-200 p-3 rounded-full mr-3 shadow-md">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="text-amber-700"
+                    >
+                      <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+                      <path d="m7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
+                  </div>
+                  <h3 className="font-bold text-amber-800 text-lg"> Delivery Security OTP</h3>
+                </div>
+
+                <div className="bg-white border-3 border-amber-400 rounded-xl p-6 mb-4 shadow-inner">
+                  <p className="text-sm text-amber-700 mb-3 font-semibold text-center">Your Delivery Verification Code:</p>
+                  <div className="text-4xl font-bold text-amber-900 tracking-widest text-center bg-gradient-to-r from-amber-100 to-yellow-100 py-4 rounded-lg border-2 border-amber-300 shadow-sm">
+                    {codOTP}
+                  </div>
+                </div>
+
+                <div className="bg-amber-100 rounded-lg p-4 space-y-2">
+                  <div className="text-sm text-amber-800 space-y-1">
+                    <p className="font-bold flex items-center">
+                      <span className="mr-2">📱</span>
+                      IMPORTANT: Take a screenshot of this OTP now!
+                    </p>
+                    <p className="flex items-center">
+                      <span className="mr-2">🚚</span>
+                      Show this OTP to the delivery person
+                    </p>
+                    <p className="flex items-center">
+                      <span className="mr-2">🔐</span>
+                      This ensures secure and verified delivery
+                    </p>
+                    <p className="flex items-center">
+                      <span className="mr-2">⏰</span>
+                      Keep this OTP safe until delivery is complete
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Order Summary */}
+              <div className="bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 p-5 rounded-xl text-left shadow-sm">
+                <p className="font-bold mb-3 text-gray-800 flex items-center">
+                  <span className="mr-2">📋</span>
+                  Order Summary
+                </p>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center py-1">
+                    <span className="font-medium text-gray-600">Order ID:</span>
+                    <span className="font-mono text-sm bg-gray-200 px-2 py-1 rounded">{orderId}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-1">
+                    <span className="font-medium text-gray-600">Items:</span>
+                    <span className="font-semibold text-blue-600">{cartItems.length} items</span>
+                  </div>
+                  <div className="flex justify-between items-center py-1">
+                    <span className="font-medium text-gray-600">Total Amount:</span>
+                    <span className="font-bold text-green-600 text-lg">₹{grandTotal.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-1">
+                    <span className="font-medium text-gray-600">Payment Method:</span>
+                    <span className="font-semibold text-orange-600">💰 Cash on Delivery</span>
+                  </div>
+                  <div className="flex justify-between items-center py-1">
+                    <span className="font-medium text-gray-600">Status:</span>
+                    <span className="font-bold text-green-600 flex items-center">
+                      <span className="mr-1">✅</span>
+                      Confirmed & Logged
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 p-4 rounded-lg">
+                <p className="text-sm text-blue-800 font-medium flex items-center">
+                  <span className="mr-2">📧</span>
+                  Email Confirmation Sent!
+                </p>
+                <p className="text-xs text-blue-600 mt-1">
+                  A detailed billing confirmation has been sent to your registered email address with complete order details.
+                </p>
+              </div>
+
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 p-4 rounded-lg">
+                <p className="text-sm text-green-800 font-medium flex items-center">
+                  <span className="mr-2">🎉</span>
+                  Order Successfully Processed!
+                </p>
+                <p className="text-xs text-green-600 mt-1">
+                  Your order has been logged to our system and delivery will be arranged shortly.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col items-center space-y-3 pb-4">
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 w-full">
+              <p className="text-sm text-yellow-800 text-center font-medium">
+                💡 Remember: Screenshot this OTP before proceeding!
+              </p>
+            </div>
+
+            <Button
+              onClick={() => {
+                console.log("🏠 User clicked Return to Home - completing COD order");
+                setIsCODComplete(false);
+
+                // Now call parent completion handler
+                const codPaymentData = {
+                  payment_method: "cod",
+                  razorpay_order_id: orderId,
+                  razorpay_payment_id: `cod_${Date.now()}`,
+                  razorpay_signature: `cod_signature_${Date.now()}`,
+                  amount: grandTotal,
+                  _isCOD: true,
+                  _otpVerified: true,
+                  _otp: codOTP
+                };
+
+                onPaymentComplete(codPaymentData);
+                clearCart();
+                navigate("/", { replace: false });
+                // Ensure scroll to top after navigation
+                setTimeout(() => {
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }, 100);
+              }}
+              className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white px-10 py-4 text-lg font-semibold rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200"
+            >
+              Go to Homepage
+            </Button>
+
+            <p className="text-xs text-gray-500 text-center">
+              Thank you for choosing Bengal Bay Restaurant! 🍽️
+            </p>
           </div>
         </DialogContent>
       </Dialog>

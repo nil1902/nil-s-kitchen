@@ -68,26 +68,39 @@ const MenuPage = () => {
   };
 
   return (
-    <div className="w-full bg-white py-16">
+    <div className="w-full bg-gradient-to-b from-amber-50 to-white py-8 md:py-16 min-h-screen">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-10">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Our Menu</h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+        {/* Mobile-Optimized Header */}
+        <div className="text-center mb-6 md:mb-10">
+          
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3 md:mb-4">
+            Our <span className="text-amber-600">Menu</span>
+          </h1>
+          <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
             Explore our wide range of delicious dishes prepared with the finest
             ingredients and authentic recipes
           </p>
         </div>
 
-        <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+        <div className="flex flex-col md:flex-row justify-between items-center mb-6 md:mb-8 gap-4">
+          {/* Enhanced Mobile Search */}
           <div className="relative w-full md:w-1/3">
             <Input
               type="text"
-              placeholder="Search dishes..."
-              className="pl-10"
+              placeholder="Search your favorite dish..."
+              className="pl-12 pr-4 py-3 rounded-xl border-2 border-amber-200 focus:border-amber-400 bg-white shadow-sm text-base"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-amber-500" />
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm("")}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                ✕
+              </button>
+            )}
           </div>
 
           {/* Desktop Tabs */}
@@ -108,14 +121,14 @@ const MenuPage = () => {
             </TabsList>
           </Tabs>
 
-          {/* Mobile Sliding Tabs */}
+          {/* Enhanced Mobile Sliding Tabs */}
           <div className="md:hidden w-full">
-            <div className="relative">
+            <div className="relative bg-white rounded-xl shadow-sm border border-amber-100 p-2">
               {/* Left Scroll Button */}
               <Button
-                variant="outline"
+                variant="ghost"
                 size="icon"
-                className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-md rounded-full h-8 w-8"
+                className="absolute left-1 top-1/2 -translate-y-1/2 z-10 bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-lg rounded-full h-8 w-8 hover:from-amber-600 hover:to-amber-700"
                 onClick={() => handleScroll('left')}
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -123,9 +136,9 @@ const MenuPage = () => {
 
               {/* Right Scroll Button */}
               <Button
-                variant="outline"
+                variant="ghost"
                 size="icon"
-                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-md rounded-full h-8 w-8"
+                className="absolute right-1 top-1/2 -translate-y-1/2 z-10 bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-lg rounded-full h-8 w-8 hover:from-amber-600 hover:to-amber-700"
                 onClick={() => handleScroll('right')}
               >
                 <ChevronRight className="h-4 w-4" />
@@ -134,95 +147,56 @@ const MenuPage = () => {
               {/* Scrollable Tabs Container */}
               <div 
                 id="scrollable-tabs"
-                className="flex gap-2 overflow-x-auto scrollbar-hide px-8 py-2"
+                className="flex gap-2 overflow-x-auto scrollbar-hide px-10 py-1"
                 style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
               >
-                <button
-                  onClick={() => setActiveTab("all")}
-                  className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    activeTab === "all"
-                      ? "bg-amber-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  All
-                </button>
-                <button
-                  onClick={() => setActiveTab("veg")}
-                  className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    activeTab === "veg"
-                      ? "bg-amber-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  Vegetarian
-                </button>
-                <button
-                  onClick={() => setActiveTab("non-veg")}
-                  className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    activeTab === "non-veg"
-                      ? "bg-amber-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  Non-Veg
-                </button>
-                <button
-                  onClick={() => setActiveTab("biryani")}
-                  className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    activeTab === "biryani"
-                      ? "bg-amber-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  Biryani
-                </button>
-                <button
-                  onClick={() => setActiveTab("bread")}
-                  className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    activeTab === "bread"
-                      ? "bg-amber-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  Bread
-                </button>
-                <button
-                  onClick={() => setActiveTab("starter")}
-                  className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    activeTab === "starter"
-                      ? "bg-amber-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  Starters
-                </button>
-                <button
-                  onClick={() => setActiveTab("drinks")}
-                  className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    activeTab === "drinks"
-                      ? "bg-amber-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  Drinks
-                </button>
-                <button
-                  onClick={() => setActiveTab("dessert")}
-                  className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    activeTab === "dessert"
-                      ? "bg-amber-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  Desserts
-                </button>
+                {[
+                  { key: "all", label: "🍽️ All", emoji: "🍽️" },
+                  { key: "veg", label: "🥬 Veg", emoji: "🥬" },
+                  { key: "non-veg", label: "🍖 Non-Veg", emoji: "🍖" },
+                  { key: "biryani", label: "🍚 Biryani", emoji: "🍚" },
+                  { key: "bread", label: "🍞 Bread", emoji: "🍞" },
+                  { key: "starter", label: "🥗 Starters", emoji: "🥗" },
+                  { key: "drinks", label: "🥤 Drinks", emoji: "🥤" },
+                  { key: "dessert", label: "🍰 Desserts", emoji: "🍰" }
+                ].map((tab) => (
+                  <button
+                    key={tab.key}
+                    onClick={() => setActiveTab(tab.key)}
+                    className={`flex-shrink-0 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 transform hover:scale-105 ${
+                      activeTab === tab.key
+                        ? "bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-md"
+                        : "bg-gray-50 text-gray-700 hover:bg-amber-50 hover:text-amber-700"
+                    }`}
+                  >
+                    <span className="flex items-center gap-1">
+                      <span>{tab.emoji}</span>
+                      <span className="hidden sm:inline">{tab.label.split(' ')[1]}</span>
+                    </span>
+                  </button>
+                ))}
               </div>
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {/* Results Count for Mobile */}
+        <div className="flex justify-between items-center mb-4 md:hidden">
+          <p className="text-sm text-gray-600">
+            {filteredDishes.length} dishes found
+          </p>
+          {searchTerm && (
+            <button
+              onClick={() => setSearchTerm("")}
+              className="text-sm text-amber-600 font-medium"
+            >
+              Clear search
+            </button>
+          )}
+        </div>
+
+        {/* Enhanced Mobile Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
           {filteredDishes.length > 0 ? (
             filteredDishes.map((dish) => (
               <div

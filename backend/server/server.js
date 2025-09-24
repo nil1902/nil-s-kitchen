@@ -142,7 +142,11 @@ app.post('/api/log-order', async (req, res) => {
       transactionMode,
       orderDate,
       deliveryAddress,
-      paymentId
+      paymentId,
+      deliveryOTP,
+      orderStatus,
+      otpVerified,
+      deliveryVerificationTime
     } = req.body;
 
     console.log('📝 Logging order to Google Sheets:', orderId);
@@ -174,10 +178,14 @@ app.post('/api/log-order', async (req, res) => {
           'Transaction Mode',
           'Order Date',
           'Delivery Address',
-          'Payment ID'
+          'Payment ID',
+          'Delivery OTP',
+          'Order Status',
+          'OTP Verified',
+          'Delivery Verification Time'
         ]
       });
-      console.log('✅ Created new Orders sheet');
+      console.log('✅ Created new Orders sheet with enhanced COD tracking');
     }
 
     // Add the order data
@@ -192,7 +200,11 @@ app.post('/api/log-order', async (req, res) => {
       'Transaction Mode': transactionMode,
       'Order Date': orderDate,
       'Delivery Address': deliveryAddress,
-      'Payment ID': paymentId || 'N/A'
+      'Payment ID': paymentId || 'N/A',
+      'Delivery OTP': deliveryOTP || 'N/A',
+      'Order Status': orderStatus || 'Processing',
+      'OTP Verified': otpVerified || false,
+      'Delivery Verification Time': deliveryVerificationTime || 'Pending'
     });
 
     console.log('✅ Order logged to Google Sheets successfully:', orderId);
@@ -210,6 +222,7 @@ app.post('/api/log-order', async (req, res) => {
   }
 });
 
+// Update payment status endpoint (enhanced)
 app.post('/api/update-payment-status', async (req, res) => {
   try {
     const { orderId, paymentStatus, paymentId } = req.body;
@@ -263,6 +276,152 @@ app.post('/api/update-payment-status', async (req, res) => {
     res.status(500).json({
       success: false,
       error: error.message || 'Failed to update payment status'
+    });
+  }
+});
+
+// 🚚 COD OTP Verification Endpoint (For Delivery Personnel)
+app.post('/api/verify-cod-otp', async (req, res) => {
+  try {
+    const { orderId, enteredOTP, deliveryPersonId } = req.body;
+
+    console.log('🔐 Verifying COD OTP for order:', orderId);
+
+    if (!googleSheet) {
+      console.warn('⚠️ Google Sheets not initialized, attempting to reinitialize...');
+      const initialized = await initializeGoogleSheets();
+      if (!initialized) {
+        return res.status(500).json({
+          success: false,
+          error: 'Google Sheets service unavailable'
+        });
+      }
+    }
+
+    const sheet = googleSheet.sheetsByTitle['Orders'];
+    if (!sheet) {
+      return res.status(404).json({
+        success: false,
+        error: 'Orders sheet not found'
+      });
+    }
+
+    // Find the order
+    const rows = await sheet.getRows();
+    const targetRow = rows.find(row => row.get('Order ID') === orderId);
+    
+    if (!targetRow) {
+      return res.status(404).json({
+        success: false,
+        error: 'Order not found'
+      });
+    }
+
+    const storedOTP = targetRow.get('Delivery OTP');
+    const currentStatus = targetRow.get('Payment Status');
+
+    // Verify OTP
+    if (storedOTP === enteredOTP) {
+      // Update order status to completed
+      targetRow.set('Payment Status', 'Completed');
+      targetRow.set('Order Status', 'Delivered & Paid');
+      targetRow.set('OTP Verified', true);
+      targetRow.set('Delivery Verification Time', new Date().toLocaleString('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      }));
+      targetRow.set('Payment ID', `cod_verified_${Date.now()}`);
+      
+      await targetRow.save();
+      
+      console.log('✅ COD OTP verified successfully:', orderId);
+      res.json({
+        success: true,
+        message: 'OTP verified successfully. Payment completed.',
+        orderStatus: 'Delivered & Paid'
+      });
+    } else {
+      console.warn('❌ Invalid OTP for order:', orderId);
+      res.status(400).json({
+        success: false,
+        error: 'Invalid OTP. Please check and try again.'
+      });
+    }
+  } catch (error) {
+    console.error('❌ Failed to verify COD OTP:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to verify OTP'
+    });
+  }
+});
+
+// 📋 Get Order Details (For Delivery Personnel App)
+app.get('/api/order/:orderId', async (req, res) => {
+  try {
+    const { orderId } = req.params;
+
+    console.log('📋 Fetching order details:', orderId);
+
+    if (!googleSheet) {
+      console.warn('⚠️ Google Sheets not initialized, attempting to reinitialize...');
+      const initialized = await initializeGoogleSheets();
+      if (!initialized) {
+        return res.status(500).json({
+          success: false,
+          error: 'Google Sheets service unavailable'
+        });
+      }
+    }
+
+    const sheet = googleSheet.sheetsByTitle['Orders'];
+    if (!sheet) {
+      return res.status(404).json({
+        success: false,
+        error: 'Orders sheet not found'
+      });
+    }
+
+    // Find the order
+    const rows = await sheet.getRows();
+    const targetRow = rows.find(row => row.get('Order ID') === orderId);
+    
+    if (!targetRow) {
+      return res.status(404).json({
+        success: false,
+        error: 'Order not found'
+      });
+    }
+
+    const orderDetails = {
+      orderId: targetRow.get('Order ID'),
+      customerName: targetRow.get('Customer Name'),
+      phone: targetRow.get('Phone'),
+      email: targetRow.get('Email'),
+      totalAmount: targetRow.get('Total Amount'),
+      paymentStatus: targetRow.get('Payment Status'),
+      transactionMode: targetRow.get('Transaction Mode'),
+      orderDate: targetRow.get('Order Date'),
+      deliveryAddress: targetRow.get('Delivery Address'),
+      orderStatus: targetRow.get('Order Status'),
+      otpVerified: targetRow.get('OTP Verified'),
+      deliveryVerificationTime: targetRow.get('Delivery Verification Time')
+    };
+
+    console.log('✅ Order details fetched successfully:', orderId);
+    res.json({
+      success: true,
+      order: orderDetails
+    });
+  } catch (error) {
+    console.error('❌ Failed to fetch order details:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to fetch order details'
     });
   }
 });

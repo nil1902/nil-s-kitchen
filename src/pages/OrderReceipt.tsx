@@ -107,88 +107,103 @@ const OrderReceipt = () => {
   }
 
   return (
-    <div className="container mx-auto py-10 px-4 print:bg-white">
-      <Button variant="ghost" className="mb-4" onClick={() => navigate(-1)}>
-        <ArrowLeft className="mr-2 h-4 w-4" /> Back to Orders
-      </Button>
-      {updating && (
-        <div className="text-xs text-gray-400 mb-2">Updating with latest data...</div>
-      )}
-      <Card className="max-w-2xl mx-auto shadow-lg print:shadow-none">
-        <CardHeader className="bg-gray-50 print:bg-white">
-          <CardTitle className="text-xl">Order Receipt</CardTitle>
-          <div className="flex justify-between items-center mt-2">
-            <span className="text-sm text-gray-500">Order ID: {order.id}</span>
-            <span className="text-sm text-gray-500">{new Date(order.date).toLocaleString()}</span>
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 p-2 sm:p-4 print:bg-white">
+      <div className="max-w-md mx-auto">
+        <Button 
+          variant="ghost" 
+          className="mb-3 text-amber-700 hover:bg-amber-100" 
+          onClick={() => navigate(-1)}
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" /> Back
+        </Button>
+        
+        <Card className="bg-white shadow-xl border-0 overflow-hidden">
+          {/* Success Header */}
+          <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white p-4 text-center">
+            <div className="text-2xl mb-1">✅</div>
+            <h1 className="text-lg font-bold">Order Confirmed!</h1>
+            <p className="text-sm opacity-90">Cash on Delivery</p>
           </div>
-        </CardHeader>
-        <CardContent className="pt-6">
-          <div className="mb-4">
-            <h3 className="font-semibold mb-1">Customer Info</h3>
-            <div className="text-sm text-gray-700">
-              <div>Name: {order.userName}</div>
-              <div>Email: {order.userEmail}</div>
-              {order.shippingAddress && (
-                <div>
-                  Address: {order.shippingAddress.address}, {order.shippingAddress.locality}, {order.shippingAddress.city}, {order.shippingAddress.state} - {order.shippingAddress.pincode}
-                </div>
-              )}
-              {order.shippingAddress?.phone && <div>Phone: {order.shippingAddress.phone}</div>}
+
+          <CardContent className="p-4 space-y-4">
+            {/* Order ID & Date */}
+            <div className="text-center bg-gray-50 rounded-lg p-3">
+              <div className="text-xs text-gray-500">Order ID</div>
+              <div className="font-mono text-sm font-semibold">{order.id.slice(-8)}</div>
+              <div className="text-xs text-gray-500 mt-1">
+                {new Date(order.date).toLocaleDateString()}
+              </div>
             </div>
-          </div>
-          <div className="mb-4">
-            <h3 className="font-semibold mb-1">Order Items</h3>
-            <div className="divide-y">
-              {order.items.map((item) => (
-                <div key={item.id} className="flex items-center gap-4 py-2">
-                  <div className="h-12 w-12 rounded bg-gray-100 overflow-hidden">
-                    <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
+
+            {/* Items Summary */}
+            <div>
+              <h3 className="font-semibold text-sm mb-2 text-gray-700">Items ({order.items.length})</h3>
+              <div className="space-y-2">
+                {order.items.slice(0, 3).map((item) => (
+                  <div key={item.id} className="flex items-center gap-3 bg-gray-50 rounded-lg p-2">
+                    <div className="h-8 w-8 rounded bg-gray-200 overflow-hidden flex-shrink-0">
+                      <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium truncate">{item.name}</div>
+                      <div className="text-xs text-gray-500">Qty: {item.quantity}</div>
+                    </div>
+                    <div className="text-sm font-semibold">₹{(item.price * item.quantity).toFixed(0)}</div>
                   </div>
-                  <div className="flex-1">
-                    <div className="font-medium">{item.name}</div>
-                    <div className="text-xs text-gray-500">Qty: {item.quantity}</div>
+                ))}
+                {order.items.length > 3 && (
+                  <div className="text-xs text-gray-500 text-center">
+                    +{order.items.length - 3} more items
                   </div>
-                  <div className="font-medium">₹{(item.price * item.quantity).toFixed(2)}</div>
+                )}
+              </div>
+            </div>
+
+            {/* Payment Summary */}
+            <div className="bg-amber-50 rounded-lg p-3">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm text-gray-600">Total Amount</span>
+                <span className="text-xl font-bold text-amber-700">₹{order.total.toFixed(0)}</span>
+              </div>
+              <div className="text-xs text-gray-500 text-center">
+                Pay by cash when delivered
+              </div>
+            </div>
+
+            {/* Delivery Info */}
+            {order.shippingAddress && (
+              <div className="bg-blue-50 rounded-lg p-3">
+                <h4 className="text-sm font-semibold text-blue-800 mb-1">Delivery Address</h4>
+                <div className="text-xs text-blue-700">
+                  <div>{order.userName}</div>
+                  <div>{order.shippingAddress.address}</div>
+                  <div>{order.shippingAddress.city}, {order.shippingAddress.state} - {order.shippingAddress.pincode}</div>
+                  {order.shippingAddress.phone && <div>📞 {order.shippingAddress.phone}</div>}
                 </div>
-              ))}
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="flex gap-2 pt-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handlePrint}
+                className="flex-1 text-xs"
+              >
+                <Printer className="mr-1 h-3 w-3" /> Print
+              </Button>
+              <Button 
+                size="sm" 
+                onClick={() => navigate('/menu')}
+                className="flex-1 bg-amber-600 hover:bg-amber-700 text-xs"
+              >
+                Order Again
+              </Button>
             </div>
-          </div>
-          <div className="mb-4">
-            <h3 className="font-semibold mb-1">Payment Summary</h3>
-            <div className="flex flex-col gap-1 text-sm">
-              <div className="flex justify-between">
-                <span>Subtotal</span>
-                <span>₹{order.subtotal?.toFixed(2) || order.total.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Tax (5%)</span>
-                <span>₹{order.tax?.toFixed(2) || (order.total * 0.05).toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Protect Fee</span>
-                <span>₹{order.protectFee?.toFixed(2) || "9.00"}</span>
-              </div>
-              <div className="flex justify-between font-semibold border-t pt-2 mt-2">
-                <span>Total</span>
-                <span>₹{order.total.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Payment Method</span>
-                <span>{order.paymentMethod}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Payment Status</span>
-                <span>{order.paymentStatus}</span>
-              </div>
-            </div>
-          </div>
-          <div className="flex justify-end gap-2 mt-6">
-            <Button variant="outline" onClick={handlePrint}>
-              <Printer className="mr-2 h-4 w-4" /> Download/Print Receipt
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

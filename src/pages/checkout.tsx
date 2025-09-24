@@ -47,6 +47,11 @@ const CheckoutPage: React.FC = () => {
     addressType: "home",
   });
 
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
   // If cart is empty, redirect to menu
   useEffect(() => {
     if (cartItems.length === 0) {
@@ -191,10 +196,21 @@ const CheckoutPage: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto py-10 px-4">
-      <h1 className="text-3xl font-bold mb-6">Checkout</h1>
+    <div className="min-h-screen bg-gradient-to-b from-amber-50 to-white" >
+      <div className="container mx-auto py-6 md:py-10 px-4">
+        {/* Mobile-Optimized Header */}
+        <div className="text-center md:text-left mb-6">
+          <div className="inline-flex items-center bg-amber-100 px-4 py-2 rounded-full mb-3 md:hidden">
+            <span className="text-amber-600 font-medium text-sm">🛒 Final Step</span>
+          </div>
+          <h1 className="text-2xl md:text-3xl font-bold mb-2 md:mb-6">
+            <span className="md:hidden">Complete Your Order</span>
+            <span className="hidden md:inline">Checkout</span>
+          </h1>
+          <p className="text-sm text-gray-600 md:hidden">Review your order and choose payment method</p>
+        </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6">
         <div className="md:col-span-2">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
@@ -390,6 +406,6 @@ const CheckoutPage: React.FC = () => {
       */}
     </div>
   );
-};
-
+</div>
+)};
 export default CheckoutPage;

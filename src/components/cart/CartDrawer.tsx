@@ -141,10 +141,10 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ children }) => {
   const handleCheckout = useCallback(() => {
     if (!currentUser) {
       setIsOpen(false);
-      navigate("/login");
+      navigate("/login", { replace: false });
     } else {
       setIsOpen(false);
-      navigate("/checkout");
+      navigate("/checkout", { replace: false });
     }
   }, [currentUser, navigate]);
 

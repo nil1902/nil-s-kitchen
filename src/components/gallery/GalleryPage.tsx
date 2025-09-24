@@ -177,43 +177,109 @@ const GalleryPage = () => {
   };
 
   return (
-    <div className="w-full bg-white py-16">
+    <div className="w-full bg-gradient-to-b from-slate-50 to-white py-8 md:py-16 min-h-screen">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-10">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Our Gallery</h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+        {/* Mobile-Optimized Header */}
+        <div className="text-center mb-6 md:mb-10">
+
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3 md:mb-4">
+            Our <span className="text-amber-600">Gallery</span>
+          </h1>
+          <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
             Take a visual journey through our restaurant, delicious dishes,
             special events, and our dedicated team
           </p>
         </div>
 
-        <Tabs
-          defaultValue="all"
-          className="w-full mb-8"
-          onValueChange={setActiveTab}
-        >
-          <TabsList className="grid grid-cols-5 w-full max-w-md mx-auto">
-            <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="food">Food</TabsTrigger>
-            <TabsTrigger value="restaurant">Restaurant</TabsTrigger>
-            <TabsTrigger value="events">Events</TabsTrigger>
-            <TabsTrigger value="team">Team</TabsTrigger>
-          </TabsList>
-        </Tabs>
+        {/* Mobile-Optimized Tabs */}
+        <div className="mb-6 md:mb-8">
+          {/* Desktop Tabs */}
+          <Tabs
+            defaultValue="all"
+            className="hidden md:block w-full"
+            onValueChange={setActiveTab}
+          >
+            <TabsList className="grid grid-cols-5 w-full max-w-md mx-auto">
+              <TabsTrigger value="all">All</TabsTrigger>
+              <TabsTrigger value="food">Food</TabsTrigger>
+              <TabsTrigger value="restaurant">Restaurant</TabsTrigger>
+              <TabsTrigger value="events">Events</TabsTrigger>
+              <TabsTrigger value="team">Team</TabsTrigger>
+            </TabsList>
+          </Tabs>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {filteredImages.map((image) => (
+          {/* Mobile Tabs */}
+          <div className="md:hidden">
+            <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2">
+              {[
+                { key: "all", label: "All", emoji: "🖼️", count: galleryImages.length },
+                { key: "food", label: "Food", emoji: "🍽️", count: galleryImages.filter(img => img.category === "food").length },
+                { key: "restaurant", label: "Restaurant", emoji: "🏪", count: galleryImages.filter(img => img.category === "restaurant").length },
+                { key: "events", label: "Events", emoji: "🎉", count: galleryImages.filter(img => img.category === "events").length },
+                { key: "team", label: "Team", emoji: "👥", count: galleryImages.filter(img => img.category === "team").length }
+              ].map((tab) => (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key)}
+                  className={`flex-shrink-0 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 transform hover:scale-105 ${activeTab === tab.key
+                    ? "bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-lg"
+                    : "bg-white text-gray-700 hover:bg-amber-50 hover:text-amber-700 shadow-sm border border-gray-200"
+                    }`}
+                >
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="text-lg">{tab.emoji}</span>
+                    <span className="text-xs">{tab.label}</span>
+                    <span className="text-xs opacity-75">({tab.count})</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Results Count */}
+        <div className="flex justify-between items-center mb-4">
+          <p className="text-sm text-gray-600">
+            {filteredImages.length} {filteredImages.length === 1 ? 'image' : 'images'}
+            {activeTab !== 'all' && ` in ${activeTab}`}
+          </p>
+          <div className="text-sm text-amber-600 font-medium">
+            Tap to view full size
+          </div>
+        </div>
+
+        {/* Enhanced Mobile Gallery Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4">
+          {filteredImages.map((image, index) => (
             <div
               key={image.id}
-              className="overflow-hidden rounded-lg shadow-md cursor-pointer transition-transform duration-300 hover:scale-[1.02] hover:shadow-lg"
+              className="relative overflow-hidden rounded-xl shadow-md cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-xl group"
               onClick={() => handleImageClick(image)}
             >
-              <AspectRatio ratio={4 / 3}>
+              <AspectRatio ratio={1}>
                 <img
                   src={image.src}
                   alt={image.alt}
-                  className="object-cover w-full h-full transition-transform duration-500 hover:scale-110"
+                  className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
+                  loading={index < 8 ? "eager" : "lazy"}
                 />
+                {/* Mobile Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="absolute bottom-2 left-2 right-2">
+                    <p className="text-white text-xs font-medium truncate">
+                      {image.alt}
+                    </p>
+                  </div>
+                </div>
+                {/* Category Badge */}
+                <div className="absolute top-2 left-2">
+                  <span className="bg-black/70 text-white text-xs px-2 py-1 rounded-full backdrop-blur-sm">
+                    {image.category === 'food' && '🍽️'}
+                    {image.category === 'restaurant' && '🏪'}
+                    {image.category === 'events' && '🎉'}
+                    {image.category === 'team' && '👥'}
+                  </span>
+                </div>
               </AspectRatio>
             </div>
           ))}
