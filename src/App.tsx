@@ -25,6 +25,7 @@ const PrivacyPolicy = lazy(() => import("./pages/privacy-policy"));
 const TermsOfService = lazy(() => import("./pages/terms-of-service"));
 const GoogleSheetsTest = lazy(() => import("./components/admin/GoogleSheetsTest"));
 const DeliveryVerification = lazy(() => import("./pages/DeliveryVerification"));
+const OrderTracking = lazy(() => import("./pages/OrderTracking"));
 
 function App() {
   const location = useLocation();
@@ -61,6 +62,8 @@ function App() {
                 <Route path="/order/:id" element={<OrderReceipt />} />
                 <Route path="/admin/sheets-test" element={<GoogleSheetsTest />} />
                 <Route path="/delivery-verification" element={<DeliveryVerification />} />
+                <Route path="/track-order" element={<OrderTracking />} />
+                <Route path="/track-order/:orderId" element={<OrderTracking />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
