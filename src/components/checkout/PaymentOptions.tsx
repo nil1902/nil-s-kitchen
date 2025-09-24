@@ -66,26 +66,26 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
       console.log("Payment already being processed, ignoring duplicate call");
       return; // Prevent double processing
     }
-    
+
     setIsProcessing(true);
-    
+
     try {
       console.log("Processing payment success...");
-      
+
       // Validate payment data
       if (!paymentData) {
         throw new Error("Invalid payment data received");
       }
-      
+
       // Skip verification for now to test Google Sheets integration
       console.log("⏭️ Skipping payment verification for testing");
       const verification = { success: true, _testing: true };
-      
+
       console.log("Payment verified successfully");
-      
+
       // Generate order ID and save order
       const randomOrderId = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-      
+
       // Save order in background - don't wait for it
       saveOrder(randomOrderId, paymentData).then(() => {
         console.log("✅ Order saved successfully");
@@ -93,19 +93,19 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
         console.error("❌ Failed to save order:", saveError);
         // Continue anyway - order will be saved to localStorage as backup
       });
-      
+
       // Send confirmation email (don't wait for it to complete)
       sendConfirmationEmail(randomOrderId).catch(error => {
         console.warn("Failed to send confirmation email:", error);
       });
-      
+
       setOrderId(randomOrderId);
       setIsPaymentComplete(true);
-      
+
       console.log("🚀 Calling onPaymentComplete with data:", paymentData);
       onPaymentComplete(paymentData);
       console.log("✅ onPaymentComplete called successfully");
-      
+
       // Also make a direct Google Sheets call as backup
       console.log("🔄 Making direct Google Sheets backup call...");
       const backupOrderData = {
@@ -136,27 +136,27 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
         },
         body: JSON.stringify(backupOrderData),
       })
-      .then(response => {
-        console.log("📊 Backup Google Sheets API Response Status:", response.status);
-        return response.json();
-      })
-      .then(result => {
-        if (result.success) {
-          console.log("✅ Backup order logged to Google Sheets successfully:", result);
-        } else {
-          console.error("❌ Backup Google Sheets API Error:", result.error);
-        }
-      })
-      .catch(error => {
-        console.error("❌ Backup Google Sheets API Call Failed:", error);
-      });
-      
+        .then(response => {
+          console.log("📊 Backup Google Sheets API Response Status:", response.status);
+          return response.json();
+        })
+        .then(result => {
+          if (result.success) {
+            console.log("✅ Backup order logged to Google Sheets successfully:", result);
+          } else {
+            console.error("❌ Backup Google Sheets API Error:", result.error);
+          }
+        })
+        .catch(error => {
+          console.error("❌ Backup Google Sheets API Call Failed:", error);
+        });
+
     } catch (error: any) {
       console.error("Payment processing error:", error);
-      
+
       // Show user-friendly error message
       const errorMessage = error.message || "Payment processing failed. Please contact support.";
-      
+
       // Use a more user-friendly notification instead of alert
       if (window.confirm(`Error: ${errorMessage}\n\nWould you like to try again?`)) {
         setIsProcessing(false);
@@ -170,9 +170,9 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
   const handlePaymentError = (error: any) => {
     console.error("Payment error:", error);
     setIsProcessing(false);
-    
+
     const errorMessage = error.description || error.message || "Payment failed. Please try again.";
-    
+
     // Use a more user-friendly notification
     if (window.confirm(`Payment Failed: ${errorMessage}\n\nWould you like to try again?`)) {
       // User wants to try again, just reset the state
@@ -212,30 +212,14 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
       protectFee: protectFee,
     };
 
-    // Save to Firestore
+    // Save to localStorage only (Firebase disabled to prevent errors)
     if (currentUser) {
-      try {
-        const ordersRef = collection(db, "orders");
-        await addDoc(ordersRef, {
-          ...orderData,
-          timestamp: serverTimestamp(),
-        });
-
-        // Also save to localStorage as backup
-        const userOrdersKey = `orders_${currentUser.uid}`;
-        const existingOrders = localStorage.getItem(userOrdersKey);
-        const orders = existingOrders ? JSON.parse(existingOrders) : [];
-        orders.unshift(orderData);
-        localStorage.setItem(userOrdersKey, JSON.stringify(orders));
-      } catch (error) {
-        console.error("Error saving order:", error);
-        // Fallback to localStorage only
-        const userOrdersKey = `orders_${currentUser.uid}`;
-        const existingOrders = localStorage.getItem(userOrdersKey);
-        const orders = existingOrders ? JSON.parse(existingOrders) : [];
-        orders.unshift(orderData);
-        localStorage.setItem(userOrdersKey, JSON.stringify(orders));
-      }
+      const userOrdersKey = `orders_${currentUser.uid}`;
+      const existingOrders = localStorage.getItem(userOrdersKey);
+      const orders = existingOrders ? JSON.parse(existingOrders) : [];
+      orders.unshift(orderData);
+      localStorage.setItem(userOrdersKey, JSON.stringify(orders));
+      console.log("✅ Order saved to localStorage successfully");
     }
   };
 
@@ -248,46 +232,70 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
 
     const emailContent = {
       to: userEmail,
-      subject: `Order Confirmation #${orderId} - Bengal Bay`,
+      subject: `🍽️ Order Confirmation #${orderId} - Bengal Bay Restaurant`,
       message: `
         Dear ${userName},
 
-        Thank you for your order at Bengal Bay!
+        🎉 Thank you for your order at Bengal Bay Restaurant!
 
+        📋 ORDER DETAILS:
+        ═══════════════════════════════════════
         Order ID: ${orderId}
-        Date: ${new Date().toLocaleString()}
+        Date: ${new Date().toLocaleString('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        dateStyle: 'full',
+        timeStyle: 'short'
+      })}
+        Customer: ${userName}
+        Email: ${userEmail}
 
-        Items:
+        🍽️ ITEMS ORDERED:
+        ═══════════════════════════════════════
         ${cartItems
           .map(
             (item) => `
-        - ${item.name} (${item.quantity}x) - ₹${(item.price * item.quantity).toFixed(2)}
-          Item ID: ${item.id}
+        • ${item.name}
+          Quantity: ${item.quantity}x
           Unit Price: ₹${item.price.toFixed(2)}
+          Subtotal: ₹${(item.price * item.quantity).toFixed(2)}
         `,
           )
           .join("")}
 
-        Subtotal: ₹${cartTotal.toFixed(2)}
-        Tax (5%): ₹${tax.toFixed(2)}
-        Protect Fee: ₹${protectFee.toFixed(2)}
-        Total: ₹${totalAmount.toFixed(2)}
+        💰 BILLING SUMMARY:
+        ═══════════════════════════════════════
+        Items Subtotal:     ₹${cartTotal.toFixed(2)}
+        Tax (5%):          ₹${tax.toFixed(2)}
+        Protect Fee:       ₹${protectFee.toFixed(2)}
+        ─────────────────────────────────────
+        TOTAL AMOUNT:      ₹${totalAmount.toFixed(2)}
 
-        Payment Method: ${paymentMethod === "razorpay" ? "Online Payment" : "Cash on Delivery"}
-        Payment Status: Completed
+        💳 PAYMENT INFORMATION:
+        ═══════════════════════════════════════
+        Payment Method: ${paymentMethod === "razorpay" ? "Online Payment (Razorpay)" : "Cash on Delivery"}
+        Payment Status: ${paymentMethod === "razorpay" ? "✅ Completed" : "⏳ Pending (COD)"}
 
-        Your order has been received and is being processed.
-        You can track your order in the My Orders section of your profile.
+        📦 ORDER STATUS:
+        ═══════════════════════════════════════
+        Status: Order Confirmed & Being Processed
+        Estimated Delivery: 30-45 minutes
+        
+        📱 TRACK YOUR ORDER:
+        You can track your order status in the "My Orders" section of your Bengal Bay account.
 
-        Thank you for choosing Bengal Bay!
+        🙏 Thank you for choosing Bengal Bay Restaurant!
+        We appreciate your business and hope you enjoy your delicious meal.
         
         Best regards,
         The Bengal Bay Team
+        📧 Contact: support@bengalbay.com
+        📞 Phone: +91 82505 65455
       `,
     };
 
     try {
-      await fetch("https://formsubmit.co/ajax/nilimeshpal4@gmail.com", {
+      // Send email to the logged-in user's email address
+      await fetch(`https://formsubmit.co/ajax/${userEmail}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -295,6 +303,7 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
         },
         body: JSON.stringify(emailContent),
       });
+      console.log(`✅ Billing email sent to user: ${userEmail}`);
     } catch (error) {
       console.error("Failed to send email notification", error);
     }
@@ -304,16 +313,16 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
     const randomOrderId = `ORD-${Math.floor(Math.random() * 1000000)}`;
     setOrderId(randomOrderId);
     setIsPaymentComplete(true);
-    
+
     // COD payment data
     const codPaymentData = {
       payment_method: "cod",
       order_id: randomOrderId,
       amount: grandTotal
     };
-    
+
     onPaymentComplete(codPaymentData);
-    
+
     // Save COD order
     saveCodOrder(randomOrderId);
     sendConfirmationEmail(randomOrderId);
@@ -426,8 +435,8 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
                     <ErrorBoundary fallback={
                       <div className="p-4 text-center border border-red-200 rounded-md bg-red-50">
                         <p className="text-red-600 mb-2">Payment gateway error</p>
-                        <Button 
-                          onClick={() => window.location.reload()} 
+                        <Button
+                          onClick={() => window.location.reload()}
                           size="lg"
                           className="bg-red-600 hover:bg-red-700 text-white"
                         >
@@ -605,7 +614,7 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
           <DialogHeader>
             <DialogTitle>Order Placed Successfully!</DialogTitle>
             <DialogDescription>
-              {paymentMethod === "cod" 
+              {paymentMethod === "cod"
                 ? "Your order has been placed successfully. Please keep cash ready for delivery."
                 : "Your payment has been processed successfully."}
             </DialogDescription>
@@ -638,8 +647,8 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
                 <p>Amount: ₹{grandTotal.toFixed(2)}</p>
                 <p>
                   Payment Method: {" "}
-                  {paymentMethod === "cod" 
-                    ? "Cash on Delivery" 
+                  {paymentMethod === "cod"
+                    ? "Cash on Delivery"
                     : "Online Payment"}
                 </p>
                 <p>Status: {paymentMethod === "cod" ? "Confirmed" : "Paid"}</p>
@@ -662,6 +671,7 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
             >
               Continue Shopping
             </Button>
+
           </div>
         </DialogContent>
       </Dialog>

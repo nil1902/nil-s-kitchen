@@ -164,18 +164,18 @@ const CheckoutPage: React.FC = () => {
       // Force cart UI refresh by clearing localStorage as well
       localStorage.removeItem("cart");
       
-      // Show success dialog
+      // Show success dialog - DISABLED TO PREVENT DOUBLE SUCCESS CARDS
       setOrderId(randomOrderId);
-      setIsOrderComplete(true);
+      // setIsOrderComplete(true); // Commented out - success handled by PaymentOptions component
 
       console.log("✅ Order completed successfully:", orderData);
       console.log("🛒 Cart cleared and localStorage updated");
       
-      // Auto-redirect to home after 3 seconds
-      setTimeout(() => {
-        setIsOrderComplete(false);
-        navigate("/");
-      }, 3000);
+      // No auto-redirect - handled by PaymentOptions success dialog
+      // setTimeout(() => {
+      //   setIsOrderComplete(false);
+      //   navigate("/");
+      // }, 3000);
 
     } catch (error) {
       console.error("❌ Failed to process order:", error);
@@ -306,7 +306,8 @@ const CheckoutPage: React.FC = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Order Confirmation Dialog */}
+      {/* Order Confirmation Dialog - COMMENTED OUT TO PREVENT DOUBLE SUCCESS CARDS */}
+      {/* 
       <Dialog open={isOrderComplete} onOpenChange={setIsOrderComplete}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -386,6 +387,7 @@ const CheckoutPage: React.FC = () => {
           </div>
         </DialogContent>
       </Dialog>
+      */}
     </div>
   );
 };
