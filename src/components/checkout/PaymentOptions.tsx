@@ -128,6 +128,11 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
         customerName: "Test Customer",
         phone: "9876543210",
         email: currentUser?.email || "guest@example.com",
+        orderItems: cartItems.map(item => ({
+          name: item.name,
+          quantity: item.quantity,
+          price: item.price
+        })),
         itemsCount: cartItems.length,
         totalAmount: `₹${(cartTotal + cartTotal * 0.05 + 9).toFixed(2)}`,
         paymentStatus: "Completed",
@@ -372,6 +377,11 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
         customerName: currentUser?.displayName || "Guest User",
         phone: "9876543210", // You can get this from address form
         email: currentUser?.email || "guest@example.com",
+        orderItems: cartItems.map(item => ({
+          name: item.name,
+          quantity: item.quantity,
+          price: item.price
+        })),
         itemsCount: cartItems.length,
         totalAmount: `₹${grandTotal.toFixed(2)}`,
         paymentStatus: "Pending (COD)",

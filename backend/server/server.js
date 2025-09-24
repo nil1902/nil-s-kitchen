@@ -167,6 +167,11 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Generate OTP for COD orders
+function generateDeliveryOTP() {
+  return Math.floor(1000000 + Math.random() * 9000000).toString(); // 7-digit OTP
+}
+
 // Google Sheets endpoints (optional features - won't affect Razorpay)
 app.post('/api/log-order', async (req, res) => {
   try {
@@ -190,6 +195,13 @@ app.post('/api/log-order', async (req, res) => {
     } = req.body;
 
     console.log('📝 Logging order to Google Sheets:', orderId);
+
+    // Generate OTP for COD orders if not provided
+    let finalDeliveryOTP = deliveryOTP;
+    if (transactionMode === 'Cash on Delivery' && !deliveryOTP) {
+      finalDeliveryOTP = generateDeliveryOTP();
+      console.log('🔐 Generated COD OTP:', finalDeliveryOTP);
+    }
 
     if (!googleSheet) {
       console.log('⚠️ Google Sheets not initialized, attempting to reinitialize...');
@@ -230,19 +242,29 @@ app.post('/api/log-order', async (req, res) => {
       console.log('✅ Created new Orders sheet with enhanced COD tracking');
     }
 
-    // Process order items - convert array to comma-separated string
+    // Process order items - convert array to detailed string
     let orderItemsString = 'N/A';
     if (orderItems && Array.isArray(orderItems)) {
       orderItemsString = orderItems.map(item => {
         if (typeof item === 'string') {
           return item;
-        } else if (item && item.name) {
-          return `${item.name}${item.quantity ? ` (x${item.quantity})` : ''}`;
+        } else if (item && typeof item === 'object') {
+          // Handle detailed item objects
+          const name = item.name || item.title || 'Unknown Item';
+          const quantity = item.quantity || 1;
+          const price = item.price ? ` - ₹${item.price}` : '';
+          return `${name} (x${quantity})${price}`;
         }
-        return JSON.stringify(item);
+        return String(item);
       }).join(', ');
     } else if (orderItems && typeof orderItems === 'string') {
       orderItemsString = orderItems;
+    } else if (orderItems && typeof orderItems === 'object') {
+      // Handle single item object
+      const name = orderItems.name || orderItems.title || 'Unknown Item';
+      const quantity = orderItems.quantity || 1;
+      const price = orderItems.price ? ` - ₹${orderItems.price}` : '';
+      orderItemsString = `${name} (x${quantity})${price}`;
     }
 
     // Add the order data
@@ -259,7 +281,7 @@ app.post('/api/log-order', async (req, res) => {
       'Order Date': orderDate,
       'Delivery Address': deliveryAddress,
       'Payment ID': paymentId || 'N/A',
-      'Delivery OTP': deliveryOTP || 'N/A',
+      'Delivery OTP': finalDeliveryOTP || 'N/A',
       'Order Status': orderStatus || 'Processing',
       'OTP Verified': otpVerified || false,
       'Delivery Verification Time': deliveryVerificationTime || 'Pending',
@@ -270,7 +292,8 @@ app.post('/api/log-order', async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Order logged successfully'
+      message: 'Order logged successfully',
+      deliveryOTP: finalDeliveryOTP // Return OTP for COD orders
     });
 
   } catch (error) {
@@ -547,6 +570,70 @@ app.get('/api/order/:orderId', async (req, res) => {
   }
 });
 
+// Order tracking endpoint
+app.get('/api/track-order/:orderId', async (req, res) => {
+  try {
+    const { orderId } = req.params;
+
+    console.log('📍 Tracking order:', orderId);
+
+    if (!googleSheet) {
+      const initialized = await initializeGoogleSheets();
+      if (!initialized) {
+        return res.status(500).json({
+          success: false,
+          error: 'Order tracking service unavailable'
+        });
+      }
+    }
+
+    const sheet = googleSheet.sheetsByTitle['Orders'];
+    if (!sheet) {
+      return res.status(404).json({
+        success: false,
+        error: 'Orders not found'
+      });
+    }
+
+    const rows = await sheet.getRows();
+    const targetRow = rows.find(row => row.get('Order ID') === orderId);
+
+    if (!targetRow) {
+      return res.status(404).json({
+        success: false,
+        error: 'Order not found'
+      });
+    }
+
+    const trackingInfo = {
+      orderId: targetRow.get('Order ID'),
+      orderStatus: targetRow.get('Order Status') || 'Processing',
+      paymentStatus: targetRow.get('Payment Status'),
+      transactionMode: targetRow.get('Transaction Mode'),
+      orderDate: targetRow.get('Order Date'),
+      estimatedDelivery: '30-45 minutes',
+      customerName: targetRow.get('Customer Name'),
+      totalAmount: targetRow.get('Total Amount'),
+      deliveryAddress: targetRow.get('Delivery Address'),
+      orderItems: targetRow.get('Order Items'),
+      otpRequired: targetRow.get('Transaction Mode') === 'Cash on Delivery',
+      deliveryOTP: targetRow.get('Transaction Mode') === 'Cash on Delivery' ? targetRow.get('Delivery OTP') : null
+    };
+
+    res.json({
+      success: true,
+      tracking: trackingInfo
+    });
+
+  } catch (error) {
+    console.error('❌ Order tracking failed:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to track order'
+    });
+  }
+});
+
 app.get('/api/test-sheets', async (req, res) => {
   try {
     if (!googleSheet) {
@@ -588,6 +675,7 @@ app.get('/', (req, res) => {
       updatePaymentStatus: '/api/update-payment-status',
       getOrders: '/api/orders',
       getOrderDetails: '/api/order/:orderId',
+      trackOrder: '/api/track-order/:orderId',
       verifyCodOtp: '/api/verify-cod-otp',
       testSheets: '/api/test-sheets'
     }
