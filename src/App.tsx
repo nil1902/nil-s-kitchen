@@ -23,6 +23,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const OrderReceipt = lazy(() => import("./pages/OrderReceipt"));
 const PrivacyPolicy = lazy(() => import("./pages/privacy-policy"));
 const TermsOfService = lazy(() => import("./pages/terms-of-service"));
+const GoogleSheetsTest = lazy(() => import("./components/admin/GoogleSheetsTest"));
 
 function App() {
   const location = useLocation();
@@ -57,6 +58,7 @@ function App() {
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                 <Route path="/terms-of-service" element={<TermsOfService />} />
                 <Route path="/order/:id" element={<OrderReceipt />} />
+                <Route path="/admin/sheets-test" element={<GoogleSheetsTest />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>

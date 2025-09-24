@@ -22,6 +22,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { useOrderTracking } from "@/hooks/useOrderTracking";
 
 const CheckoutPage = () => {
   const { currentUser } = useAuth();
@@ -53,7 +54,9 @@ const CheckoutPage = () => {
     }
   }, [cartItems, navigate]);
 
-  const handlePaymentComplete = async () => {
+  const { logOrderToSheet, isLogging } = useOrderTracking();
+
+  const handlePaymentComplete = async (paymentData?: any) => {
     if (isProcessing) return;
     setIsProcessing(true);
 
@@ -92,6 +95,28 @@ const CheckoutPage = () => {
       orders.unshift(orderData);
       localStorage.setItem(userOrdersKey, JSON.stringify(orders));
       localStorage.setItem("currentUserId", currentUser?.uid || "guest");
+
+      // 🚀 LOG ORDER TO GOOGLE SHEETS
+      try {
+        const sheetOrderData = {
+          orderId: randomOrderId,
+          customerName: address.name,
+          phone: address.phone,
+          email: currentUser?.email || "guest@example.com",
+          items: cartItems,
+          totalAmount: totalAmount,
+          paymentStatus: paymentData ? "Completed" : "Pending",
+          transactionMode: paymentData ? "Online" : "Cash on Delivery",
+          deliveryAddress: `${address.address}, ${address.locality}, ${address.city}, ${address.state} - ${address.pincode}`,
+          paymentId: paymentData?.razorpay_payment_id || null
+        };
+
+        await logOrderToSheet(sheetOrderData);
+        console.log("✅ Order logged to Google Sheets successfully");
+      } catch (sheetError) {
+        console.error("❌ Failed to log to Google Sheets:", sheetError);
+        // Don't fail the order if sheets logging fails
+      }
 
       setOrderId(randomOrderId);
       setIsOrderComplete(true);

@@ -21,7 +21,7 @@ import { verifyPayment } from "@/lib/razorpay";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
 
 interface PaymentOptionsProps {
-  onPaymentComplete: () => void;
+  onPaymentComplete: (paymentData?: any) => void;
 }
 
 const PaymentOptions: React.FC<PaymentOptionsProps> = ({
@@ -115,7 +115,7 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
       
       setOrderId(randomOrderId);
       setIsPaymentComplete(true);
-      onPaymentComplete();
+      onPaymentComplete(paymentData);
       
     } catch (error: any) {
       console.error("Payment processing error:", error);
@@ -270,7 +270,15 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
     const randomOrderId = `ORD-${Math.floor(Math.random() * 1000000)}`;
     setOrderId(randomOrderId);
     setIsPaymentComplete(true);
-    onPaymentComplete();
+    
+    // COD payment data
+    const codPaymentData = {
+      payment_method: "cod",
+      order_id: randomOrderId,
+      amount: grandTotal
+    };
+    
+    onPaymentComplete(codPaymentData);
     
     // Save COD order
     saveCodOrder(randomOrderId);
