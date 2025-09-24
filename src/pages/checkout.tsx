@@ -22,9 +22,9 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { useOrderTracking } from "@/hooks/useOrderTracking";
+// Direct API calls for better reliability
 
-const CheckoutPage = () => {
+const CheckoutPage: React.FC = () => {
   const { currentUser } = useAuth();
   const { cartItems, cartTotal, clearCart } = useCart();
   const navigate = useNavigate();
@@ -54,7 +54,7 @@ const CheckoutPage = () => {
     }
   }, [cartItems, navigate]);
 
-  const { logOrderToSheet, isLogging } = useOrderTracking();
+  // Direct API calls instead of using hook for better reliability
 
   const handlePaymentComplete = async (paymentData?: any) => {
     if (isProcessing) return;
@@ -81,8 +81,8 @@ const CheckoutPage = () => {
         userEmail: currentUser?.email || "guest@example.com",
         userName: currentUser?.displayName || address.name,
         shippingAddress: address,
-        paymentMethod: "Online Payment",
-        paymentStatus: "Completed",
+        paymentMethod: paymentData ? "Online Payment" : "Cash on Delivery",
+        paymentStatus: paymentData ? "Completed" : "Pending",
         tax: cartTotal * 0.05,
         subtotal: cartTotal,
         protectFee: 9,
@@ -96,35 +96,89 @@ const CheckoutPage = () => {
       localStorage.setItem(userOrdersKey, JSON.stringify(orders));
       localStorage.setItem("currentUserId", currentUser?.uid || "guest");
 
-      // 🚀 LOG ORDER TO GOOGLE SHEETS
-      try {
-        const sheetOrderData = {
-          orderId: randomOrderId,
-          customerName: address.name,
-          phone: address.phone,
-          email: currentUser?.email || "guest@example.com",
-          items: cartItems,
-          totalAmount: totalAmount,
-          paymentStatus: paymentData ? "Completed" : "Pending",
-          transactionMode: paymentData ? "Online" : "Cash on Delivery",
-          deliveryAddress: `${address.address}, ${address.locality}, ${address.city}, ${address.state} - ${address.pincode}`,
-          paymentId: paymentData?.razorpay_payment_id || null
-        };
+      // 🚀 LOG ORDER TO GOOGLE SHEETS (Non-blocking)
+      const sheetOrderData = {
+        orderId: randomOrderId,
+        customerName: address.name,
+        phone: address.phone,
+        email: currentUser?.email || "guest@example.com",
+        items: cartItems,
+        totalAmount: totalAmount,
+        paymentStatus: paymentData ? "Completed" : "Pending",
+        transactionMode: paymentData ? "Online Payment" : "Cash on Delivery",
+        deliveryAddress: `${address.address}, ${address.locality}, ${address.city}, ${address.state} - ${address.pincode}`,
+        paymentId: paymentData?.razorpay_payment_id || null
+      };
 
-        await logOrderToSheet(sheetOrderData);
-        console.log("✅ Order logged to Google Sheets successfully");
-      } catch (sheetError) {
-        console.error("❌ Failed to log to Google Sheets:", sheetError);
-        // Don't fail the order if sheets logging fails
-      }
+      // 🚀 LOG ORDER TO GOOGLE SHEETS - Direct API Call
+      console.log("🚀 Attempting to log order to Google Sheets:", sheetOrderData);
+      
+      // Prepare data for backend API
+      const backendOrderData = {
+        orderId: randomOrderId,
+        customerName: address.name,
+        phone: address.phone,
+        email: currentUser?.email || "guest@example.com",
+        itemsCount: cartItems.length,
+        totalAmount: `₹${totalAmount.toFixed(2)}`,
+        paymentStatus: paymentData ? "Completed" : "Pending",
+        transactionMode: paymentData ? "Online Payment" : "Cash on Delivery",
+        orderDate: new Date().toLocaleString('en-IN', {
+          timeZone: 'Asia/Kolkata',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        }),
+        deliveryAddress: `${address.address}, ${address.locality}, ${address.city}, ${address.state} - ${address.pincode}`,
+        paymentId: paymentData?.razorpay_payment_id || 'N/A'
+      };
 
-      setOrderId(randomOrderId);
-      setIsOrderComplete(true);
+      // Direct API call to backend
+      fetch(`${import.meta.env.VITE_BACKEND_URL || 'https://bengal-bay-api.onrender.com'}/api/log-order`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(backendOrderData),
+      })
+      .then(response => {
+        console.log("📊 Google Sheets API Response Status:", response.status);
+        return response.json();
+      })
+      .then(result => {
+        if (result.success) {
+          console.log("✅ Order logged to Google Sheets successfully:", result);
+        } else {
+          console.error("❌ Google Sheets API Error:", result.error);
+        }
+      })
+      .catch(error => {
+        console.error("❌ Google Sheets API Call Failed:", error);
+      });
+
+      // Clear cart immediately after successful order processing
       clearCart();
       
-      console.log("Order completed successfully:", orderData);
+      // Force cart UI refresh by clearing localStorage as well
+      localStorage.removeItem("cart");
+      
+      // Show success dialog
+      setOrderId(randomOrderId);
+      setIsOrderComplete(true);
+
+      console.log("✅ Order completed successfully:", orderData);
+      console.log("🛒 Cart cleared and localStorage updated");
+      
+      // Auto-redirect to home after 3 seconds
+      setTimeout(() => {
+        setIsOrderComplete(false);
+        navigate("/");
+      }, 3000);
+
     } catch (error) {
-      console.error("Failed to process order:", error);
+      console.error("❌ Failed to process order:", error);
       alert("There was an error processing your order. Please try again.");
     } finally {
       setIsProcessing(false);
@@ -284,11 +338,11 @@ const CheckoutPage = () => {
                       <div className="flex-1">
                         <p className="text-sm font-medium">{item.name}</p>
                         <p className="text-xs text-gray-500">
-                          ?{item.price.toFixed(2)} x {item.quantity}
+                          ₹{item.price.toFixed(2)} x {item.quantity}
                         </p>
                       </div>
                       <p className="font-medium">
-                        ?{(item.price * item.quantity).toFixed(2)}
+                        ₹{(item.price * item.quantity).toFixed(2)}
                       </p>
                     </div>
                   ))}
@@ -296,36 +350,38 @@ const CheckoutPage = () => {
                 <div className="border-t pt-2 mt-2">
                   <div className="flex justify-between text-sm">
                     <span>Subtotal:</span>
-                    <span>?{cartTotal.toFixed(2)}</span>
+                    <span>₹{cartTotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span>Tax (5%):</span>
-                    <span>?{(cartTotal * 0.05).toFixed(2)}</span>
+                    <span>₹{(cartTotal * 0.05).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span>Protect Fee:</span>
-                    <span>?9.00</span>
+                    <span>₹9.00</span>
                   </div>
                   <div className="flex justify-between font-medium mt-1">
                     <span>Total:</span>
                     <span>
-                      ?{(cartTotal + cartTotal * 0.05 + 9).toFixed(2)}
+                      ₹{(cartTotal + cartTotal * 0.05 + 9).toFixed(2)}
                     </span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          <div className="flex justify-center">
+          <div className="flex flex-col items-center gap-3">
+            <p className="text-sm text-gray-500 text-center">
+              🎉 Redirecting to home page in 3 seconds...
+            </p>
             <Button
               onClick={() => {
                 setIsOrderComplete(false);
-                clearCart();
                 navigate("/");
               }}
               className="bg-amber-600 hover:bg-amber-700 text-white"
             >
-              Continue Shopping
+              Go to Home Now
             </Button>
           </div>
         </DialogContent>

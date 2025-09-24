@@ -3,14 +3,14 @@ import { Button } from '@/components/ui/button';
 import { useOrderTracking } from '@/hooks/useOrderTracking';
 
 const GoogleSheetsTest: React.FC = () => {
-  const { testConnection, logOrderToSheet, isLogging, error } = useOrderTracking();
+  const { testConnection, logOrderToSheet, syncPendingData, isLogging, error } = useOrderTracking();
   const [testResult, setTestResult] = useState<string>('');
 
   const handleTestConnection = async () => {
-    setTestResult('Testing connection...');
+    setTestResult('Testing backend connection...');
     try {
       const result = await testConnection();
-      setTestResult(result ? '✅ Connection successful!' : '❌ Connection failed');
+      setTestResult(result ? '✅ Backend connection successful!' : '❌ Backend connection failed - using local backup');
     } catch (err) {
       setTestResult(`❌ Error: ${err}`);
     }
@@ -35,11 +35,32 @@ const GoogleSheetsTest: React.FC = () => {
         paymentId: 'test_payment_123'
       };
 
-      await logOrderToSheet(testOrderData);
-      setTestResult('✅ Test order logged successfully!');
+      const result = await logOrderToSheet(testOrderData);
+      if (result) {
+        setTestResult('✅ Test order logged successfully!');
+      } else {
+        setTestResult('⚠️ Order saved locally - will sync when backend is available');
+      }
     } catch (err) {
       setTestResult(`❌ Error logging order: ${err}`);
     }
+  };
+
+  const handleSyncPending = async () => {
+    setTestResult('Syncing pending data...');
+    try {
+      await syncPendingData();
+      setTestResult('✅ Pending data sync completed!');
+    } catch (err) {
+      setTestResult(`❌ Sync failed: ${err}`);
+    }
+  };
+
+  const checkPendingData = () => {
+    const pendingOrders = JSON.parse(localStorage.getItem('pending_sheet_orders') || '[]');
+    const pendingUpdates = JSON.parse(localStorage.getItem('pending_payment_updates') || '[]');
+    
+    setTestResult(`📊 Pending Orders: ${pendingOrders.length}, Pending Updates: ${pendingUpdates.length}`);
   };
 
   return (
@@ -52,7 +73,7 @@ const GoogleSheetsTest: React.FC = () => {
           disabled={isLogging}
           className="w-full"
         >
-          Test Connection
+          Test Backend Connection
         </Button>
         
         <Button 
@@ -63,11 +84,31 @@ const GoogleSheetsTest: React.FC = () => {
         >
           Test Order Logging
         </Button>
+
+        <Button 
+          onClick={checkPendingData}
+          disabled={isLogging}
+          className="w-full"
+          variant="secondary"
+        >
+          Check Pending Data
+        </Button>
+
+        <Button 
+          onClick={handleSyncPending}
+          disabled={isLogging}
+          className="w-full"
+          variant="destructive"
+        >
+          Sync Pending Data
+        </Button>
         
         {testResult && (
           <div className={`p-3 rounded-md ${
             testResult.includes('✅') 
               ? 'bg-green-50 text-green-800 border border-green-200' 
+              : testResult.includes('⚠️') || testResult.includes('📊')
+              ? 'bg-yellow-50 text-yellow-800 border border-yellow-200'
               : 'bg-red-50 text-red-800 border border-red-200'
           }`}>
             {testResult}
@@ -88,7 +129,13 @@ const GoogleSheetsTest: React.FC = () => {
       </div>
       
       <div className="mt-6 text-xs text-gray-500">
-        <p>Sheet URL: <a href="https://docs.google.com/spreadsheets/d/1Z_ujaIqaXoReK-75BR9vcxLGxHd5ctI3683DOayFwpU/edit" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Open Sheet</a></p>
+        <p><strong>How it works:</strong></p>
+        <ul className="list-disc list-inside mt-2 space-y-1">
+          <li>Orders try backend first</li>
+          <li>Falls back to local storage if backend fails</li>
+          <li>Syncs when backend becomes available</li>
+        </ul>
+        <p className="mt-2">Sheet URL: <a href="https://docs.google.com/spreadsheets/d/1Z_ujaIqaXoReK-75BR9vcxLGxHd5ctI3683DOayFwpU/edit" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Open Sheet</a></p>
       </div>
     </div>
   );

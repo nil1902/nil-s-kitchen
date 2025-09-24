@@ -148,15 +148,18 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
         order_id: orderData.order.id,
         handler: function (response: any) {
           try {
-            console.log("Payment successful:", response);
+            console.log("✅ Payment successful:", response);
             // Add mock flag to response if using mock
             if (isUsingMock) {
               response._isMockPayment = true;
             }
+            
+            // Ensure cart is cleared after successful payment
+            console.log("🛒 Payment completed, cart will be cleared");
             setIsProcessing(false);
             onSuccess(response);
           } catch (handlerError) {
-            console.error("Payment handler error:", handlerError);
+            console.error("❌ Payment handler error:", handlerError);
             setIsProcessing(false);
             onError({ message: "Payment processing failed. Please contact support." });
           }
