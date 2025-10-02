@@ -187,7 +187,7 @@ export const menuItems: MenuItem[] = [
     description: "Succulent prawns cooked in a spicy tomato-based sauce",
     price: 649,
     image:
-      "https://imgs.search.brave.com/jvdmz2aeFWSziZorU88BmI1XyM6sUcn1603VQNTNZkE/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9zdGF0/aWMudmVjdGVlenku/Y29tL3N5c3RlbS9y/ZXNvdXJjZXMvdGh1/bWJuYWlscy8wNTQv/ODg0LzgxOC9zbWFs/bC9pbmRpYW4tcHJh/d24tbWFzYWxhLXdp/dGgtc3BpY2VzLXBo/b3RvLmpwZw",
+      "https://images.unsplash.com/photo-1693970717381-0d53d39d71ff?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cHJhd24lMjBtYXNhbGElMjBmb29kfGVufDB8fDB8fHww",
     rating: 4.6,
     category: "Main Course",
     type: "non-veg",
