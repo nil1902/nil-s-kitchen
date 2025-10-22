@@ -10,7 +10,7 @@
 
 **A modern, feature-rich restaurant e-commerce platform with AI chatbot, payment integration, and real-time order management**
 
-[Live Demo](#) • [Features](#-features) • [Tech Stack](#-tech-stack) • [Installation](#-installation)
+[Live Demo](https://nil-s-kitchen.vercel.app/) • [Features](#-features) • [Tech Stack](#-tech-stack) • [Installation](#-installation)
 
 </div>
 
@@ -353,19 +353,22 @@ createChat({
 
 ## 📸 Screenshots
 
+### 🌐 Live Demo
+**[View Live Site →](https://nil-s-kitchen.vercel.app/)**
+
 ### Desktop View
-![Desktop Homepage](#)
-![Menu Page](#)
-![Checkout Page](#)
+![Desktop Homepage](https://nil-s-kitchen.vercel.app/)
+![Menu Page](https://nil-s-kitchen.vercel.app/menu)
+![Checkout Page](https://nil-s-kitchen.vercel.app/checkout)
 
 ### Mobile View
-![Mobile Homepage](#)
-![Mobile Menu](#)
-![Mobile Cart](#)
+![Mobile Homepage](https://nil-s-kitchen.vercel.app/)
+![Mobile Menu](https://nil-s-kitchen.vercel.app/menu)
+![Mobile Cart](https://nil-s-kitchen.vercel.app/checkout)
 
 ### Admin Dashboard
-![Admin Panel](#)
-![Order Management](#)
+![Admin Panel](https://nil-s-kitchen.vercel.app/admin)
+![Order Management](https://nil-s-kitchen.vercel.app/admin/orders)
 
 ---
 
