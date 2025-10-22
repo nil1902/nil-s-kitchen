@@ -1,4 +1,4 @@
-﻿import React, { useState } from "react";
+﻿import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { loadRazorpay } from "@/lib/razorpay";
 import { useCart } from "../cart/CartContext";
@@ -15,6 +15,7 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
 }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isMounted, setIsMounted] = useState(true);
   const { cartTotal, cartItems } = useCart();
   const { currentUser } = useAuth();
 
@@ -22,6 +23,13 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
   const tax = (cartTotal || 0) * 0.05;
   const protectFee = 9;
   const amount = Math.round(((cartTotal || 0) + tax + protectFee) * 100); // Convert to paise
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
 
   const initiatePayment = async () => {
     // Safety checks
@@ -181,8 +189,16 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
         modal: {
           ondismiss: function () {
             console.log("Payment modal closed by user");
-            setIsProcessing(false);
-          }
+            // Safe state update with timeout to prevent race conditions
+            setTimeout(() => {
+              if (isMounted) {
+                setIsProcessing(false);
+                setError(null);
+              }
+            }, 100);
+          },
+          escape: true,
+          backdropclose: true
         }
       };
 
@@ -197,10 +213,15 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
 
       razorpay.on("payment.failed", function (response: any) {
         console.error("Payment failed:", response.error);
-        const errorMsg = response.error?.description || response.error?.reason || "Payment failed. Please try again.";
-        setError(`Payment failed: ${errorMsg}`);
-        setIsProcessing(false);
-        onError(response.error);
+        // Safe state update with mounted check
+        setTimeout(() => {
+          if (isMounted) {
+            const errorMsg = response.error?.description || response.error?.reason || "Payment failed. Please try again.";
+            setError(`Payment failed: ${errorMsg}`);
+            setIsProcessing(false);
+            onError(response.error);
+          }
+        }, 100);
       });
 
       // Open payment modal with error handling
@@ -213,10 +234,13 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
 
     } catch (error: any) {
       console.error("Payment initiation error:", error);
-      const errorMessage = error.message || "Failed to initiate payment. Please try again.";
-      setError(errorMessage);
-      setIsProcessing(false);
-      onError({ message: errorMessage });
+      // Safe state update with mounted check
+      if (isMounted) {
+        const errorMessage = error.message || "Failed to initiate payment. Please try again.";
+        setError(errorMessage);
+        setIsProcessing(false);
+        onError({ message: errorMessage });
+      }
     }
   };
 

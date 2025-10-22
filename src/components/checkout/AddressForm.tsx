@@ -225,9 +225,9 @@ const AddressForm: React.FC<AddressFormProps> = ({
   };
 
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-semibold mb-4">Edit Address</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="p-4 md:p-6">
+      <h2 className="text-lg md:text-xl font-semibold mb-4 sticky top-0 bg-white z-10 pb-2 border-b">Edit Address</h2>
+      <form onSubmit={handleSubmit} className="space-y-4 pb-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Name */}
           <div className="space-y-2">
@@ -444,13 +444,13 @@ const AddressForm: React.FC<AddressFormProps> = ({
           )}
         </div>
 
-        <div className="flex justify-end space-x-4 pt-4">
-          <Button type="button" variant="outline" onClick={onCancel}>
+        <div className="flex flex-col sm:flex-row justify-end gap-3 sm:space-x-4 pt-4 sticky bottom-0 bg-white border-t pb-2">
+          <Button type="button" variant="outline" onClick={onCancel} className="w-full sm:w-auto">
             Cancel
           </Button>
           <Button
             type="submit"
-            className="bg-amber-600 hover:bg-amber-700 text-white"
+            className="bg-amber-600 hover:bg-amber-700 text-white w-full sm:w-auto"
           >
             Save and Deliver Here
           </Button>

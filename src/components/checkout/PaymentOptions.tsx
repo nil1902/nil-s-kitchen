@@ -77,6 +77,8 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
     setIsProcessing(true);
 
     try {
+      // Add small delay to ensure state is stable
+      await new Promise(resolve => setTimeout(resolve, 50));
       console.log("Processing payment success...");
 
       // Validate payment data
@@ -114,12 +116,22 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
 
       // 🏠 DIRECT REDIRECT TO HOMEPAGE (Same as COD)
       console.log("🏠 Razorpay payment successful - redirecting to homepage");
-      clearCart();
-      navigate("/", { replace: false });
-      // Ensure scroll to top after navigation
-      setTimeout(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }, 100);
+      
+      // Safe navigation with error handling
+      try {
+        clearCart();
+        setTimeout(() => {
+          navigate("/", { replace: false });
+          // Ensure scroll to top after navigation
+          setTimeout(() => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }, 100);
+        }, 200);
+      } catch (navError) {
+        console.error("Navigation error:", navError);
+        // Fallback: force reload to home
+        window.location.href = "/";
+      }
 
       // Also make a direct Google Sheets call as backup
       console.log("🔄 Making direct Google Sheets backup call...");
@@ -174,33 +186,34 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
     } catch (error: any) {
       console.error("Payment processing error:", error);
 
-      // Show user-friendly error message
-      const errorMessage = error.message || "Payment processing failed. Please contact support.";
-
-      // Use a more user-friendly notification instead of alert
-      if (window.confirm(`Error: ${errorMessage}\n\nWould you like to try again?`)) {
+      // Safe state update
+      setTimeout(() => {
         setIsProcessing(false);
-      } else {
-        // User chose not to retry, redirect to menu
-        navigate("/home");
-      }
+      }, 100);
+
+      // Mobile-friendly error handling - just log, don't show alerts
+      const errorMessage = error.message || "Payment processing failed";
+      console.log(`Error: ${errorMessage}`);
+      
+      // Don't redirect or show alerts - let user stay on page and retry
     }
   };
 
   const handlePaymentError = (error: any) => {
     console.error("Payment error:", error);
-    setIsProcessing(false);
+    
+    // Safe state update with timeout
+    setTimeout(() => {
+      setIsProcessing(false);
+    }, 100);
 
-    const errorMessage = error.description || error.message || "Payment failed. Please try again.";
+    const errorMessage = error.description || error.message || "Payment cancelled or failed";
 
-    // Use a more user-friendly notification
-    if (window.confirm(`Payment Failed: ${errorMessage}\n\nWould you like to try again?`)) {
-      // User wants to try again, just reset the state
-      return;
-    } else {
-      // User doesn't want to try again, redirect to menu
-      navigate("/menu");
-    }
+    // Mobile-friendly error handling - just log and reset, don't show confirm dialog
+    console.log(`Payment issue: ${errorMessage}`);
+    
+    // Don't redirect or show alerts on mobile - just reset state
+    // User can try again by clicking the payment button
   };
 
   const saveOrder = async (orderId: string, paymentData: any) => {
@@ -447,14 +460,17 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
       console.error("❌ COD order processing error:", error);
 
       const errorMessage = error.message || "Failed to process COD order. Please try again.";
-
-      if (window.confirm(`Error: ${errorMessage}\n\nWould you like to try again?`)) {
+      console.log(`Error: ${errorMessage}`);
+      
+      // Mobile-friendly error handling - just reset state
+      setTimeout(() => {
         setIsProcessing(false);
-      } else {
-        navigate("/home");
-      }
+      }, 100);
     } finally {
-      setIsProcessing(false);
+      // Safe state update
+      setTimeout(() => {
+        setIsProcessing(false);
+      }, 100);
     }
   };
 
@@ -976,12 +992,22 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
                 };
 
                 onPaymentComplete(codPaymentData);
-                clearCart();
-                navigate("/", { replace: false });
-                // Ensure scroll to top after navigation
-                setTimeout(() => {
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }, 100);
+                
+                // Safe navigation with error handling
+                try {
+                  clearCart();
+                  setTimeout(() => {
+                    navigate("/", { replace: false });
+                    // Ensure scroll to top after navigation
+                    setTimeout(() => {
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }, 100);
+                  }, 200);
+                } catch (navError) {
+                  console.error("Navigation error:", navError);
+                  // Fallback: force reload to home
+                  window.location.href = "/";
+                }
               }}
               className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white px-10 py-4 text-lg font-semibold rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200"
             >

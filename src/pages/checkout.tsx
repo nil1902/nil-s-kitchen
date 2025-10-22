@@ -195,6 +195,18 @@ const CheckoutPage: React.FC = () => {
     setIsAddressFormOpen(false);
   };
 
+  // Add error recovery
+  useEffect(() => {
+    const handleError = (event: ErrorEvent) => {
+      console.error("Checkout page error:", event.error);
+      event.preventDefault();
+      // Don't crash - just log the error
+    };
+
+    window.addEventListener('error', handleError);
+    return () => window.removeEventListener('error', handleError);
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 to-white" >
       <div className="container mx-auto py-6 md:py-10 px-4">
@@ -313,12 +325,14 @@ const CheckoutPage: React.FC = () => {
 
       {/* Address Form Dialog */}
       <Dialog open={isAddressFormOpen} onOpenChange={setIsAddressFormOpen}>
-        <DialogContent className="sm:max-w-2xl">
-          <AddressForm
-            initialAddress={address}
-            onSave={handleAddressChange}
-            onCancel={() => setIsAddressFormOpen(false)}
-          />
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto p-0">
+          <div className="max-h-[85vh] overflow-y-auto">
+            <AddressForm
+              initialAddress={address}
+              onSave={handleAddressChange}
+              onCancel={() => setIsAddressFormOpen(false)}
+            />
+          </div>
         </DialogContent>
       </Dialog>
 

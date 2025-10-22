@@ -6,6 +6,7 @@ import LoadingSpinner from "./components/common/LoadingSpinner";
 import { AuthProvider } from "./contexts/AuthContext";
 import { CartProvider } from "./components/cart/CartContext";
 import BuyNowPopup from "./components/cart/BuyNowPopup";
+import FloatingChatbot from "./components/chat/FloatingChatbot";
 import { measurePerformance, preloadCriticalImages } from "./utils/performance";
 
 // Lazy load all pages for better performance
@@ -30,17 +31,18 @@ const OrderTracking = lazy(() => import("./pages/OrderTracking"));
 function App() {
   const location = useLocation();
   const isHomePage = location.pathname === "/";
-  
+
   // Performance monitoring
   React.useEffect(() => {
     measurePerformance();
     preloadCriticalImages();
   }, []);
-  
+
   return (
     <AuthProvider>
       <CartProvider>
         <BuyNowPopup />
+        <FloatingChatbot />
         <Suspense fallback={<LoadingSpinner size="lg" className="min-h-[40vh]" />}>
           <div className="flex flex-col min-h-screen">
             {!isHomePage && <Navbar isLandingPage={false} />}

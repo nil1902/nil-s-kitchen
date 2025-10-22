@@ -7,13 +7,13 @@ export interface MenuItem {
   rating: number;
   category: string;
   type:
-    | "veg"
-    | "non-veg"
-    | "drinks"
-    | "dessert"
-    | "biryani"
-    | "bread"
-    | "starter";
+  | "veg"
+  | "non-veg"
+  | "drinks"
+  | "dessert"
+  | "biryani"
+  | "bread"
+  | "starter";
   isSpecial: boolean;
 }
 
@@ -23,7 +23,7 @@ export const menuItems: MenuItem[] = [
     id: "v1",
     name: "Paneer Tikka Masala",
     description: "Grilled cottage cheese cubes in a rich, spiced tomato gravy",
-    price: 1,
+    price: 169,
     image:
       "https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?w=500&q=80",
     rating: 4.7,
