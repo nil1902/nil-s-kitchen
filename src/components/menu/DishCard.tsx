@@ -34,7 +34,7 @@ const DishCard = memo(({
   category = "Pasta",
   isSpecial = false,
   isFavorite = false,
-  onAddToCart = () => // console.log("Add to cart clicked"), // Default handler
+  onAddToCart = () => console.log("Add to cart clicked"), // Default handler
   onFavorite = () => {},
 }: DishCardProps) => {
   const { cartItems, addToCart, updateQuantity } = useCart();

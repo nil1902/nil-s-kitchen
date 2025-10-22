@@ -32,7 +32,7 @@ export class UserService {
       const querySnapshot = await getDocs(q);
       return querySnapshot.empty;
     } catch (error) {
-      // console.error("Error checking mobile number uniqueness:", error);
+      console.error("Error checking mobile number uniqueness:", error);
       throw new Error("Failed to validate mobile number");
     }
   }
@@ -57,9 +57,9 @@ export class UserService {
       const userDocRef = doc(db, this.COLLECTION_NAME, user.uid);
       await setDoc(userDocRef, userProfile);
       
-      // console.log("✅ User profile created successfully");
+      console.log("✅ User profile created successfully");
     } catch (error) {
-      // console.error("Error creating user profile:", error);
+      console.error("Error creating user profile:", error);
       throw new Error("Failed to create user profile");
     }
   }
@@ -77,7 +77,7 @@ export class UserService {
       }
       return null;
     } catch (error) {
-      // console.error("Error fetching user profile:", error);
+      console.error("Error fetching user profile:", error);
       return null;
     }
   }
@@ -96,9 +96,9 @@ export class UserService {
         updatedAt: new Date(),
       }, { merge: true });
       
-      // console.log("✅ User profile updated successfully");
+      console.log("✅ User profile updated successfully");
     } catch (error) {
-      // console.error("Error updating user profile:", error);
+      console.error("Error updating user profile:", error);
       throw new Error("Failed to update user profile");
     }
   }

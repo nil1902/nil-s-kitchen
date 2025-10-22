@@ -51,14 +51,14 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
     setError(null);
 
     try {
-      // console.log("Loading Razorpay script...");
+      console.log("Loading Razorpay script...");
 
       // Load Razorpay with error handling
       let razorpayLoaded = false;
       try {
         razorpayLoaded = await loadRazorpay();
       } catch (loadError) {
-        // console.error("Razorpay script loading failed:", loadError);
+        console.error("Razorpay script loading failed:", loadError);
         throw new Error("Failed to load payment gateway. Please check your internet connection and try again.");
       }
 
@@ -66,7 +66,7 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
         throw new Error("Payment gateway is not available. Please try again later.");
       }
 
-      // console.log("Razorpay script loaded successfully");
+      console.log("Razorpay script loaded successfully");
 
       let orderData;
       let isUsingMock = false;
@@ -76,11 +76,11 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
 
       // Try to create order with real backend first
       try {
-        // console.log("?? Creating Razorpay order with amount:", amount);
+        console.log("?? Creating Razorpay order with amount:", amount);
 
         const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "https://bengal-bay-api.onrender.com";
         
-        // console.log("?? Using Backend URL:", API_BASE_URL);
+        console.log("?? Using Backend URL:", API_BASE_URL);
         
         const orderResponse = await fetch(`${API_BASE_URL}/api/create-razorpay-order`, {
           method: "POST",
@@ -102,13 +102,13 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
         
         if (responseData.success && responseData.order) {
           orderData = responseData;
-          // console.log("? Real Razorpay order created:", orderData.order.id);
+          console.log("? Real Razorpay order created:", orderData.order.id);
         } else {
           throw new Error(responseData.error || "Failed to create order");
         }
 
       } catch (apiError: any) {
-        // console.log("?? Backend unavailable, creating test order...");
+        console.log("?? Backend unavailable, creating test order...");
         isUsingMock = true;
 
         // Create a test order that bypasses Razorpay validation
@@ -122,7 +122,7 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
             status: "created"
           }
         };
-        // console.log("? Test order created for development:", orderData.order.id);
+        console.log("? Test order created for development:", orderData.order.id);
       }
 
       if (!orderData?.success || !orderData?.order) {
@@ -144,13 +144,13 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
         order_id: orderData.order.id,
         handler: function (response: any) {
           try {
-            // console.log("? Payment successful:", response);
+            console.log("? Payment successful:", response);
             
             // Add test mode flag if using mock order
             if (isUsingMock) {
               response._isTestMode = true;
               response._testOrderId = orderData.order.id;
-              // console.log("?? Test mode payment completed");
+              console.log("?? Test mode payment completed");
             }
             
             // Ensure we have required payment data
@@ -164,11 +164,11 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
               response.razorpay_signature = `test_signature_${Date.now()}`;
             }
             
-            // console.log("?? Payment completed, processing order...");
+            console.log("?? Payment completed, processing order...");
             setIsProcessing(false);
             onSuccess(response);
           } catch (handlerError) {
-            // console.error("? Payment handler error:", handlerError);
+            console.error("? Payment handler error:", handlerError);
             setIsProcessing(false);
             onError({ message: "Payment processing failed. Please contact support." });
           }
@@ -188,7 +188,7 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
         },
         modal: {
           ondismiss: function () {
-            // console.log("Payment modal closed by user");
+            console.log("Payment modal closed by user");
             // Safe state update with timeout to prevent race conditions
             setTimeout(() => {
               if (isMounted) {
@@ -207,12 +207,12 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
       try {
         razorpay = new (window as any).Razorpay(options);
       } catch (razorpayError) {
-        // console.error("Razorpay initialization failed:", razorpayError);
+        console.error("Razorpay initialization failed:", razorpayError);
         throw new Error("Payment gateway initialization failed. Please refresh and try again.");
       }
 
       razorpay.on("payment.failed", function (response: any) {
-        // console.error("Payment failed:", response.error);
+        console.error("Payment failed:", response.error);
         // Safe state update with mounted check
         setTimeout(() => {
           if (isMounted) {
@@ -228,12 +228,12 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
       try {
         razorpay.open();
       } catch (openError) {
-        // console.error("Failed to open payment modal:", openError);
+        console.error("Failed to open payment modal:", openError);
         throw new Error("Unable to open payment gateway. Please try again.");
       }
 
     } catch (error: any) {
-      // console.error("Payment initiation error:", error);
+      console.error("Payment initiation error:", error);
       // Safe state update with mounted check
       if (isMounted) {
         const errorMessage = error.message || "Failed to initiate payment. Please try again.";

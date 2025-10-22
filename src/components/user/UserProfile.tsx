@@ -23,7 +23,7 @@ const UserProfile: React.FC = () => {
           const profile = await UserService.getUserProfile(currentUser.uid);
           setUserProfile(profile);
         } catch (error) {
-          // console.error("Error fetching user profile:", error);
+          console.error("Error fetching user profile:", error);
         } finally {
           setLoading(false);
         }
@@ -48,7 +48,7 @@ const UserProfile: React.FC = () => {
         setOrders(parsedOrders.slice(0, 10)); // Show last 10 orders
       }
     } catch (error) {
-      // console.error("Error fetching orders:", error);
+      console.error("Error fetching orders:", error);
     } finally {
       setOrdersLoading(false);
     }

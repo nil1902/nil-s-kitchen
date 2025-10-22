@@ -37,7 +37,7 @@ const NewsletterForm: React.FC<NewsletterFormProps> = ({ className }) => {
       setError("");
       setEmail("");
     } catch (err) {
-      // console.error("Failed to submit newsletter form", err);
+      console.error("Failed to submit newsletter form", err);
       setError("Failed to subscribe. Please try again later.");
     }
   };

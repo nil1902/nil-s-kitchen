@@ -5,7 +5,7 @@ export const loadRazorpay = (): Promise<boolean> => {
     try {
       // Check if Razorpay is already loaded
       if ((window as any).Razorpay) {
-        // console.log("Razorpay already loaded");
+        console.log("Razorpay already loaded");
         resolve(true);
         return;
       }
@@ -16,27 +16,27 @@ export const loadRazorpay = (): Promise<boolean> => {
       
       // Add timeout for script loading
       const timeout = setTimeout(() => {
-        // console.error("Razorpay script loading timeout");
+        console.error("Razorpay script loading timeout");
         document.head.removeChild(script);
         resolve(false);
       }, 10000);
       
       script.onload = () => {
         clearTimeout(timeout);
-        // console.log("Razorpay script loaded successfully");
+        console.log("Razorpay script loaded successfully");
         
         // Double check that Razorpay is actually available
         if ((window as any).Razorpay) {
           resolve(true);
         } else {
-          // console.error("Razorpay script loaded but Razorpay object not found");
+          console.error("Razorpay script loaded but Razorpay object not found");
           resolve(false);
         }
       };
       
       script.onerror = (error) => {
         clearTimeout(timeout);
-        // console.error("Failed to load Razorpay script:", error);
+        console.error("Failed to load Razorpay script:", error);
         try {
           document.head.removeChild(script);
         } catch (e) {
@@ -48,7 +48,7 @@ export const loadRazorpay = (): Promise<boolean> => {
       document.head.appendChild(script);
       
     } catch (error) {
-      // console.error("Error in loadRazorpay:", error);
+      console.error("Error in loadRazorpay:", error);
       resolve(false);
     }
   });
@@ -57,12 +57,12 @@ export const loadRazorpay = (): Promise<boolean> => {
 export const verifyPayment = async (paymentData: any) => {
   // If it's a mock payment, use mock verification
   if (paymentData._isMockPayment) {
-    // console.log("Using mock verification for mock payment");
+    console.log("Using mock verification for mock payment");
     return await verifyMockPayment(paymentData);
   }
 
   try {
-    // console.log("Verifying payment:", paymentData.razorpay_payment_id);
+    console.log("Verifying payment:", paymentData.razorpay_payment_id);
     
     // Using Render backend URL
     const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "https://bengal-bay-api.onrender.com";
@@ -85,7 +85,7 @@ export const verifyPayment = async (paymentData: any) => {
     });
     
     clearTimeout(timeoutId);
-    // console.log("Verification response status:", response.status);
+    console.log("Verification response status:", response.status);
     
     if (!response.ok) {
       throw new Error(`Server error: ${response.status}`);
@@ -98,15 +98,15 @@ export const verifyPayment = async (paymentData: any) => {
     }
     
     const result = await response.json();
-    // console.log("Payment verification result:", result.success ? "SUCCESS" : "FAILED");
+    console.log("Payment verification result:", result.success ? "SUCCESS" : "FAILED");
     return result;
     
   } catch (error: any) {
-    // console.error("Payment verification failed, using mock:", error.message);
+    console.error("Payment verification failed, using mock:", error.message);
     
     // For network errors or timeouts, use mock verification as fallback
     if (error.name === 'AbortError') {
-      // console.warn("Verification request timed out, using mock verification");
+      console.warn("Verification request timed out, using mock verification");
     }
     
     return await verifyMockPayment(paymentData);

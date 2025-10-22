@@ -116,7 +116,7 @@ const CheckoutPage: React.FC = () => {
       };
 
       // 🚀 LOG ORDER TO GOOGLE SHEETS - Direct API Call
-      // console.log("🚀 Attempting to log order to Google Sheets:", sheetOrderData);
+      console.log("🚀 Attempting to log order to Google Sheets:", sheetOrderData);
       
       // Prepare data for backend API
       const backendOrderData = {
@@ -149,18 +149,18 @@ const CheckoutPage: React.FC = () => {
         body: JSON.stringify(backendOrderData),
       })
       .then(response => {
-        // console.log("📊 Google Sheets API Response Status:", response.status);
+        console.log("📊 Google Sheets API Response Status:", response.status);
         return response.json();
       })
       .then(result => {
         if (result.success) {
-          // console.log("✅ Order logged to Google Sheets successfully:", result);
+          console.log("✅ Order logged to Google Sheets successfully:", result);
         } else {
-          // console.error("❌ Google Sheets API Error:", result.error);
+          console.error("❌ Google Sheets API Error:", result.error);
         }
       })
       .catch(error => {
-        // console.error("❌ Google Sheets API Call Failed:", error);
+        console.error("❌ Google Sheets API Call Failed:", error);
       });
 
       // Clear cart immediately after successful order processing
@@ -173,17 +173,17 @@ const CheckoutPage: React.FC = () => {
       setOrderId(randomOrderId);
       // setIsOrderComplete(true); // Commented out - success handled by PaymentOptions component
 
-      // console.log("✅ Order completed successfully:", orderData);
-      // console.log("🛒 Cart cleared and localStorage updated");
+      console.log("✅ Order completed successfully:", orderData);
+      console.log("🛒 Cart cleared and localStorage updated");
       
       // No auto-redirect - handled by PaymentOptions success dialog
       // setTimeout(() => {
-      //   setIsOrderComplete(false);
-      //   navigate("/");
+      setIsOrderComplete(false);
+      navigate("/");
       // }, 3000);
 
     } catch (error) {
-      // console.error("❌ Failed to process order:", error);
+      console.error("❌ Failed to process order:", error);
       alert("There was an error processing your order. Please try again.");
     } finally {
       setIsProcessing(false);
@@ -198,7 +198,7 @@ const CheckoutPage: React.FC = () => {
   // Add error recovery
   useEffect(() => {
     const handleError = (event: ErrorEvent) => {
-      // console.error("Checkout page error:", event.error);
+      console.error("Checkout page error:", event.error);
       event.preventDefault();
       // Don't crash - just log the error
     };

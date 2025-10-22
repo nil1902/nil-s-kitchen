@@ -6,7 +6,7 @@ const Payment: React.FC = () => {
 
   const startPayment = async () => {
     try {
-      // console.log("🔄 Creating Razorpay order...");
+      console.log("🔄 Creating Razorpay order...");
       
       // Step 1: Create order from backend
       const response = await fetch(`${API_BASE_URL}/api/create-razorpay-order`, {
@@ -24,7 +24,7 @@ const Payment: React.FC = () => {
       }
 
       const orderData = await response.json();
-      // console.log("✅ Order created:", orderData);
+      console.log("✅ Order created:", orderData);
 
       if (!orderData.success) {
         throw new Error(orderData.error || "Failed to create order");
@@ -40,7 +40,7 @@ const Payment: React.FC = () => {
         order_id: orderData.order.id,
         handler: async function (response: any) {
           try {
-            // console.log("🔄 Verifying payment...");
+            console.log("🔄 Verifying payment...");
             
             // Step 3: Verify payment with backend
             const verifyRes = await fetch(`${API_BASE_URL}/api/verify-payment`, {
@@ -57,13 +57,13 @@ const Payment: React.FC = () => {
             
             if (result.success) {
               alert("✅ Payment successful!");
-              // console.log("✅ Payment verified successfully");
+              console.log("✅ Payment verified successfully");
             } else {
               alert("❌ Payment verification failed: " + result.error);
-              // console.error("❌ Payment verification failed:", result.error);
+              console.error("❌ Payment verification failed:", result.error);
             }
           } catch (error) {
-            // console.error("❌ Payment verification error:", error);
+            console.error("❌ Payment verification error:", error);
             alert("❌ Payment verification failed");
           }
         },
@@ -81,7 +81,7 @@ const Payment: React.FC = () => {
       rzp.open();
       
     } catch (error) {
-      // console.error("❌ Payment initiation error:", error);
+      console.error("❌ Payment initiation error:", error);
       alert("❌ Failed to initiate payment: " + (error as Error).message);
     }
   };

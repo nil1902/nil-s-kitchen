@@ -70,7 +70,7 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
 
   const handlePaymentSuccess = async (paymentData: any) => {
     if (isProcessing) {
-      // console.log("Payment already being processed, ignoring duplicate call");
+      console.log("Payment already being processed, ignoring duplicate call");
       return; // Prevent double processing
     }
 
@@ -79,7 +79,7 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
     try {
       // Add small delay to ensure state is stable
       await new Promise(resolve => setTimeout(resolve, 50));
-      // console.log("Processing payment success...");
+      console.log("Processing payment success...");
 
       // Validate payment data
       if (!paymentData) {
@@ -87,35 +87,35 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
       }
 
       // Skip verification for now to test Google Sheets integration
-      // console.log("⏭️ Skipping payment verification for testing");
+      console.log("⏭️ Skipping payment verification for testing");
       const verification = { success: true, _testing: true };
 
-      // console.log("Payment verified successfully");
+      console.log("Payment verified successfully");
 
       // Generate order ID and save order
       const randomOrderId = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
       // Save order in background - don't wait for it
       saveOrder(randomOrderId, paymentData).then(() => {
-        // console.log("✅ Order saved successfully");
+        console.log("✅ Order saved successfully");
       }).catch((saveError) => {
-        // console.error("❌ Failed to save order:", saveError);
+        console.error("❌ Failed to save order:", saveError);
         // Continue anyway - order will be saved to localStorage as backup
       });
 
       // Send confirmation email (don't wait for it to complete)
       sendConfirmationEmail(randomOrderId).catch(error => {
-        // console.warn("Failed to send confirmation email:", error);
+        console.warn("Failed to send confirmation email:", error);
       });
 
       setOrderId(randomOrderId);
 
-      // console.log("🚀 Calling onPaymentComplete with data:", paymentData);
+      console.log("🚀 Calling onPaymentComplete with data:", paymentData);
       onPaymentComplete(paymentData);
-      // console.log("✅ onPaymentComplete called successfully");
+      console.log("✅ onPaymentComplete called successfully");
 
       // 🏠 DIRECT REDIRECT TO HOMEPAGE (Same as COD)
-      // console.log("🏠 Razorpay payment successful - redirecting to homepage");
+      console.log("🏠 Razorpay payment successful - redirecting to homepage");
       
       // Safe navigation with error handling
       try {
@@ -128,13 +128,13 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
           }, 100);
         }, 200);
       } catch (navError) {
-        // console.error("Navigation error:", navError);
+        console.error("Navigation error:", navError);
         // Fallback: force reload to home
         window.location.href = "/";
       }
 
       // Also make a direct Google Sheets call as backup
-      // console.log("🔄 Making direct Google Sheets backup call...");
+      console.log("🔄 Making direct Google Sheets backup call...");
       const backupOrderData = {
         orderId: randomOrderId,
         customerName: "Test Customer",
@@ -169,22 +169,22 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
         body: JSON.stringify(backupOrderData),
       })
         .then(response => {
-          // console.log("📊 Backup Google Sheets API Response Status:", response.status);
+          console.log("📊 Backup Google Sheets API Response Status:", response.status);
           return response.json();
         })
         .then(result => {
           if (result.success) {
-            // console.log("✅ Backup order logged to Google Sheets successfully:", result);
+            console.log("✅ Backup order logged to Google Sheets successfully:", result);
           } else {
-            // console.error("❌ Backup Google Sheets API Error:", result.error);
+            console.error("❌ Backup Google Sheets API Error:", result.error);
           }
         })
         .catch(error => {
-          // console.error("❌ Backup Google Sheets API Call Failed:", error);
+          console.error("❌ Backup Google Sheets API Call Failed:", error);
         });
 
     } catch (error: any) {
-      // console.error("Payment processing error:", error);
+      console.error("Payment processing error:", error);
 
       // Safe state update
       setTimeout(() => {
@@ -193,14 +193,14 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
 
       // Mobile-friendly error handling - just log, don't show alerts
       const errorMessage = error.message || "Payment processing failed";
-      // console.log(`Error: ${errorMessage}`);
+      console.log(`Error: ${errorMessage}`);
       
       // Don't redirect or show alerts - let user stay on page and retry
     }
   };
 
   const handlePaymentError = (error: any) => {
-    // console.error("Payment error:", error);
+    console.error("Payment error:", error);
     
     // Safe state update with timeout
     setTimeout(() => {
@@ -210,7 +210,7 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
     const errorMessage = error.description || error.message || "Payment cancelled or failed";
 
     // Mobile-friendly error handling - just log and reset, don't show confirm dialog
-    // console.log(`Payment issue: ${errorMessage}`);
+    console.log(`Payment issue: ${errorMessage}`);
     
     // Don't redirect or show alerts on mobile - just reset state
     // User can try again by clicking the payment button
@@ -252,7 +252,7 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
       const orders = existingOrders ? JSON.parse(existingOrders) : [];
       orders.unshift(orderData);
       localStorage.setItem(userOrdersKey, JSON.stringify(orders));
-      // console.log("✅ Order saved to localStorage successfully");
+      console.log("✅ Order saved to localStorage successfully");
     }
   };
 
@@ -347,22 +347,22 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
         },
         body: JSON.stringify(emailContent),
       });
-      // console.log(`✅ Billing email sent to user: ${userEmail}`);
+      console.log(`✅ Billing email sent to user: ${userEmail}`);
     } catch (error) {
-      // console.error("Failed to send email notification", error);
+      console.error("Failed to send email notification", error);
     }
   };
 
   const handleCodSubmit = async () => {
     if (isProcessing) {
-      // console.log("COD order already being processed, ignoring duplicate call");
+      console.log("COD order already being processed, ignoring duplicate call");
       return;
     }
 
     setIsProcessing(true);
 
     try {
-      // console.log("🚚 Processing Cash on Delivery order...");
+      console.log("🚚 Processing Cash on Delivery order...");
 
       const randomOrderId = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
       setOrderId(randomOrderId);
@@ -380,10 +380,10 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
       // Generate 7-digit OTP for security FIRST
       const generatedOTP = generateCODOTP();
       setCodOTP(generatedOTP);
-      // console.log("🔐 Generated COD OTP:", generatedOTP);
+      console.log("🔐 Generated COD OTP:", generatedOTP);
 
       // 🚀 LOG COD ORDER TO GOOGLE SHEETS (Same as Razorpay)
-      // console.log("📊 Logging COD order to Google Sheets...");
+      console.log("📊 Logging COD order to Google Sheets...");
 
       const backendOrderData = {
         orderId: randomOrderId,
@@ -432,35 +432,35 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
       const sheetsResult = await sheetsResponse.json();
 
       if (sheetsResult.success) {
-        // console.log("✅ COD order logged to Google Sheets successfully:", sheetsResult);
+        console.log("✅ COD order logged to Google Sheets successfully:", sheetsResult);
 
         // Save COD order locally
         saveCodOrder(randomOrderId);
 
         // Send confirmation email with OTP for COD orders
         sendConfirmationEmail(randomOrderId, generatedOTP).catch(error => {
-          // console.warn("Failed to send COD confirmation email:", error);
+          console.warn("Failed to send COD confirmation email:", error);
         });
 
         // Show special COD success dialog with OTP
         setIsCODComplete(true);
 
         // DON'T call parent completion handler yet - let user manually proceed
-        // console.log("🔐 COD OTP card will be shown to user");
-        // console.log("✅ COD order completed successfully with OTP:", generatedOTP);
+        console.log("🔐 COD OTP card will be shown to user");
+        console.log("✅ COD order completed successfully with OTP:", generatedOTP);
 
         // Parent completion will be called when user clicks "Return to Home"
 
       } else {
-        // console.error("❌ COD Google Sheets API Error:", sheetsResult.error);
+        console.error("❌ COD Google Sheets API Error:", sheetsResult.error);
         throw new Error("Failed to log order to system. Please try again.");
       }
 
     } catch (error: any) {
-      // console.error("❌ COD order processing error:", error);
+      console.error("❌ COD order processing error:", error);
 
       const errorMessage = error.message || "Failed to process COD order. Please try again.";
-      // console.log(`Error: ${errorMessage}`);
+      console.log(`Error: ${errorMessage}`);
       
       // Mobile-friendly error handling - just reset state
       setTimeout(() => {
@@ -976,7 +976,7 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
 
             <Button
               onClick={() => {
-                // console.log("🏠 User clicked Return to Home - completing COD order");
+                console.log("🏠 User clicked Return to Home - completing COD order");
                 setIsCODComplete(false);
 
                 // Now call parent completion handler
@@ -1004,7 +1004,7 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
                     }, 100);
                   }, 200);
                 } catch (navError) {
-                  // console.error("Navigation error:", navError);
+                  console.error("Navigation error:", navError);
                   // Fallback: force reload to home
                   window.location.href = "/";
                 }

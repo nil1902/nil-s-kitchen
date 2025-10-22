@@ -123,7 +123,7 @@ const FeaturedDishes = ({
       isSpecial: false,
     },
   ],
-  onAddToCart = (id) => // console.log(`Added dish ${id} to cart`),
+  onAddToCart = (id) => console.log(`Added dish ${id} to cart`),
   onFavorite = (id) => console.log(`Added dish ${id} to favorites`),
 }: FeaturedDishesProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);

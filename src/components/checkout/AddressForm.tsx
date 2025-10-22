@@ -197,7 +197,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
       }, 3000);
 
     } catch (error: any) {
-      // console.error('Location detection error:', error);
+      console.error('Location detection error:', error);
 
       let errorMessage = 'Unable to detect location';
 

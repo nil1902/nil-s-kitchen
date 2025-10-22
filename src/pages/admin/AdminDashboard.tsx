@@ -62,7 +62,7 @@ const AdminDashboard = () => {
         setRecentOrders(orders.slice(0, 10)); // Latest 10 orders
       }
     } catch (error) {
-      // console.error('Failed to fetch dashboard data:', error);
+      console.error('Failed to fetch dashboard data:', error);
     } finally {
       setLoading(false);
     }

@@ -73,7 +73,7 @@ const OrderManagement = () => {
         setOrders(sortedOrders);
       }
     } catch (error) {
-      // console.error('Failed to fetch orders:', error);
+      console.error('Failed to fetch orders:', error);
     } finally {
       setLoading(false);
     }
@@ -119,9 +119,9 @@ const OrderManagement = () => {
           : order
       ));
       
-      // console.log(`Updated order ${orderId} status to ${newStatus}`);
+      console.log(`Updated order ${orderId} status to ${newStatus}`);
     } catch (error) {
-      // console.error('Failed to update order status:', error);
+      console.error('Failed to update order status:', error);
     }
   };
 

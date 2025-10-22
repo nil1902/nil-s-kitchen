@@ -53,7 +53,7 @@ const Navbar = ({ cartItemCount = 0, isLandingPage = false }: NavbarProps) => {
     try {
       await logout();
     } catch (error) {
-      // console.error("Failed to log out", error);
+      console.error("Failed to log out", error);
     }
   };
 

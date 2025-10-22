@@ -91,7 +91,7 @@ const MenuManagement = () => {
       setMenuItems(dynamicMenu);
       setCategories(Array.from(categorySet));
     } catch (error) {
-      // console.error('Failed to load menu data:', error);
+      console.error('Failed to load menu data:', error);
     } finally {
       setLoading(false);
     }
