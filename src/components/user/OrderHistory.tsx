@@ -58,9 +58,9 @@ const OrderHistory = () => {
         const parsedOrders = JSON.parse(storedOrders);
         setOrders(parsedOrders);
         setLoading(false);
-        console.log("Loaded orders from localStorage immediately:", parsedOrders);
+        // console.log("Loaded orders from localStorage immediately:", parsedOrders);
       } catch (err) {
-        console.error("Failed to parse orders from localStorage", err);
+        // console.error("Failed to parse orders from localStorage", err);
       }
     }
   }, [currentUser]);
@@ -94,14 +94,14 @@ const OrderHistory = () => {
             ...orderData,
           } as Order);
         });
-        console.log(`Fetched orders from Firestore in ${Date.now() - start}ms:`, userOrders);
+        // console.log(`Fetched orders from Firestore in ${Date.now() - start}ms:`, userOrders);
         if (isMounted && userOrders.length > 0) {
           setOrders(userOrders);
           // Update localStorage for next time
           localStorage.setItem(`orders_${currentUser.uid}`, JSON.stringify(userOrders));
         }
       } catch (error) {
-        console.error("Error fetching orders from Firestore:", error);
+        // console.error("Error fetching orders from Firestore:", error);
       } finally {
         if (isMounted) setLoading(false);
       }

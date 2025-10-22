@@ -56,9 +56,9 @@ const BookingHistory = () => {
         setBookings(parsedBookings);
         setLoading(false);
         setUpdating(true);
-        console.log("Loaded bookings from localStorage immediately:", parsedBookings);
+        // console.log("Loaded bookings from localStorage immediately:", parsedBookings);
       } catch (err) {
-        console.error("Failed to parse bookings from localStorage", err);
+        // console.error("Failed to parse bookings from localStorage", err);
       }
     }
   }, [currentUser]);
@@ -94,7 +94,7 @@ const BookingHistory = () => {
             ...bookingData,
           } as Booking);
         });
-        console.log(`Fetched bookings from Firestore in ${Date.now() - start}ms:`, userBookings);
+        // console.log(`Fetched bookings from Firestore in ${Date.now() - start}ms:`, userBookings);
         if (isMounted && userBookings.length > 0) {
           setBookings(userBookings);
           setUpdating(false);
@@ -104,7 +104,7 @@ const BookingHistory = () => {
           setUpdating(false);
         }
       } catch (error) {
-        console.error("Error fetching bookings from Firestore:", error);
+        // console.error("Error fetching bookings from Firestore:", error);
         if (isMounted) setUpdating(false);
       } finally {
         if (isMounted) setLoading(false);
@@ -157,7 +157,7 @@ const BookingHistory = () => {
         );
       }
     } catch (error) {
-      console.error("Error cancelling booking:", error);
+      // console.error("Error cancelling booking:", error);
     }
   };
 

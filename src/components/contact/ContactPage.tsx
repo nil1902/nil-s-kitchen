@@ -59,7 +59,7 @@ const ContactPage = () => {
 
         setIsSubmitted(true);
       } catch (err) {
-        console.error("Form submission error:", err);
+        // console.error("Form submission error:", err);
         setError(
           err instanceof Error ? err.message : "An unexpected error occurred",
         );

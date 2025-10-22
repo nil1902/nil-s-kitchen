@@ -1,6 +1,6 @@
 // Mock API functions for development and fallback
 export const createMockRazorpayOrder = async (amount: number) => {
-  console.log("Creating mock Razorpay order for amount:", amount);
+  // console.log("Creating mock Razorpay order for amount:", amount);
   
   // Simulate realistic API delay
   await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 400));
@@ -22,7 +22,7 @@ export const createMockRazorpayOrder = async (amount: number) => {
 };
 
 export const verifyMockPayment = async (paymentData: any) => {
-  console.log("Using mock payment verification for:", paymentData.razorpay_payment_id || "mock payment");
+  // console.log("Using mock payment verification for:", paymentData.razorpay_payment_id || "mock payment");
   
   // Simulate realistic API delay
   await new Promise(resolve => setTimeout(resolve, 600 + Math.random() * 400));

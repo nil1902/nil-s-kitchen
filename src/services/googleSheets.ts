@@ -108,21 +108,21 @@ class GoogleSheetsService {
         });
 
         if (response.ok) {
-          console.log('✅ Order logged to Google Sheets via backend');
+          // console.log('✅ Order logged to Google Sheets via backend');
           return await response.json();
         } else {
           throw new Error(`Backend error: ${response.status}`);
         }
       } catch (backendError: unknown) {
         const errorMessage = backendError instanceof Error ? backendError.message : 'Unknown backend error';
-        console.warn('Backend unavailable, using fallback method:', errorMessage);
+        // console.warn('Backend unavailable, using fallback method:', errorMessage);
         
         // Fallback: Use Google Forms submission (works from browser)
         return await this.submitToGoogleForm(sheetData);
       }
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      console.error('❌ Failed to add order to sheet:', error);
+      // console.error('❌ Failed to add order to sheet:', error);
       // Don't throw error - we don't want to break the order process
       return { success: false, error: errorMessage };
     }
@@ -132,7 +132,7 @@ class GoogleSheetsService {
     try {
       // This is a fallback method using Google Forms
       // You would need to create a Google Form connected to your sheet
-      console.log('📝 Order data prepared for logging:', orderData);
+      // console.log('📝 Order data prepared for logging:', orderData);
       
       // For now, just log locally as backup
       const orders: PendingOrder[] = JSON.parse(localStorage.getItem('pending_sheet_orders') || '[]');
@@ -143,11 +143,11 @@ class GoogleSheetsService {
       });
       localStorage.setItem('pending_sheet_orders', JSON.stringify(orders));
       
-      console.log('✅ Order saved locally, will sync when backend is available');
+      // console.log('✅ Order saved locally, will sync when backend is available');
       return { success: true, method: 'local_backup' };
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      console.error('❌ Fallback method failed:', error);
+      // console.error('❌ Fallback method failed:', error);
       return { success: false, error: errorMessage };
     }
   }
@@ -169,14 +169,14 @@ class GoogleSheetsService {
       });
 
       if (response.ok) {
-        console.log('✅ Payment status updated in Google Sheets');
+        // console.log('✅ Payment status updated in Google Sheets');
         return await response.json();
       } else {
         throw new Error(`Backend error: ${response.status}`);
       }
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      console.error('❌ Failed to update payment status:', error);
+      // console.error('❌ Failed to update payment status:', error);
       
       // Store update for later sync
       const updates: PendingUpdate[] = JSON.parse(localStorage.getItem('pending_payment_updates') || '[]');
@@ -198,13 +198,13 @@ class GoogleSheetsService {
       });
 
       if (response.ok) {
-        console.log('✅ Google Sheets connection test successful');
+        // console.log('✅ Google Sheets connection test successful');
         return true;
       } else {
         throw new Error(`Backend error: ${response.status}`);
       }
     } catch (error: unknown) {
-      console.error('❌ Google Sheets connection test failed:', error);
+      // console.error('❌ Google Sheets connection test failed:', error);
       return false;
     }
   }
@@ -233,7 +233,7 @@ class GoogleSheetsService {
           await this.addOrderToSheet(orderData);
         }
         localStorage.removeItem('pending_sheet_orders');
-        console.log(`✅ Synced ${pendingOrders.length} pending orders`);
+        // console.log(`✅ Synced ${pendingOrders.length} pending orders`);
       }
 
       if (pendingUpdates.length > 0) {
@@ -241,10 +241,10 @@ class GoogleSheetsService {
           await this.updatePaymentStatus(update.orderId, update.paymentStatus, update.paymentId);
         }
         localStorage.removeItem('pending_payment_updates');
-        console.log(`✅ Synced ${pendingUpdates.length} pending payment updates`);
+        // console.log(`✅ Synced ${pendingUpdates.length} pending payment updates`);
       }
     } catch (error: unknown) {
-      console.error('❌ Failed to sync pending data:', error);
+      // console.error('❌ Failed to sync pending data:', error);
     }
   }
 }

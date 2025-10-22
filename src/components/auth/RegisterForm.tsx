@@ -99,7 +99,7 @@ const RegisterForm = () => {
           }),
         });
       } catch (emailErr) {
-        console.error("Failed to send notification email", emailErr);
+        // console.error("Failed to send notification email", emailErr);
       }
 
       navigate("/");

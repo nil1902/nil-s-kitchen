@@ -4,7 +4,7 @@ export const measurePerformance = () => {
     const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
     
     if (navigation) {
-      console.log('Performance Metrics:', {
+      // console.log('Performance Metrics:', {
         'DOM Content Loaded': navigation.domContentLoadedEventEnd - navigation.domContentLoadedEventStart,
         'Load Complete': navigation.loadEventEnd - navigation.loadEventStart,
         'Total Load Time': navigation.loadEventEnd - navigation.fetchStart,
@@ -31,6 +31,6 @@ export const preloadCriticalImages = async () => {
   try {
     await Promise.all(criticalImages.map(preloadImage));
   } catch (error) {
-    console.warn('Failed to preload some images:', error);
+    // console.warn('Failed to preload some images:', error);
   }
 }; 

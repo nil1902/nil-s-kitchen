@@ -99,7 +99,7 @@ const ReservationPage = () => {
     const isEmailValid = !!email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     const isPhoneValid = !!phone && phone.trim().length >= 10;
 
-    console.log("Form validation:", {
+    // console.log("Form validation:", {
       isDateValid,
       isTimeValid,
       isGuestsValid,
@@ -134,7 +134,7 @@ const ReservationPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("🚀 Submit button clicked!");
+    // console.log("🚀 Submit button clicked!");
 
     // Prevent multiple submissions
     if (isSubmitting) return;
@@ -144,20 +144,20 @@ const ReservationPage = () => {
     setIsSubmitting(true);
 
     const timeout = setTimeout(() => {
-      console.error("🚨 Submission timeout! Resetting form...");
+      // console.error("🚨 Submission timeout! Resetting form...");
       setIsSubmitting(false);
       // Don't show error message, instead try to show confirmation dialog
       setIsConfirmationOpen(true);
     }, 10000); // 10 seconds
 
     try {
-      console.log("📝 Generating booking ID...");
+      // console.log("📝 Generating booking ID...");
       // Generate a unique booking ID
       const newBookingId = `BKG-${Math.floor(Math.random() * 1000000)}`;
       setBookingId(newBookingId);
 
       const bookingDate = date ? date.toISOString() : new Date().toISOString();
-      console.log("📅 Booking date:", bookingDate);
+      // console.log("📅 Booking date:", bookingDate);
       const formattedDate = date
         ? format(date, "PPP")
         : format(new Date(), "PPP");
@@ -184,7 +184,7 @@ const ReservationPage = () => {
         createdAt: serverTimestamp(),
       };
 
-      console.log("💾 Saving booking data...");
+      // console.log("💾 Saving booking data...");
       // Save to localStorage first (as a safety measure)
       if (currentUser) {
         const userBookingsKey = `bookings_${currentUser.uid}`;
@@ -235,7 +235,7 @@ const ReservationPage = () => {
                       🌟 Thank you for choosing Bengal Bay! 🌟
         `,
       };
-      console.log("Sending email to:", emailContent.to);
+      // console.log("Sending email to:", emailContent.to);
 
       try {
         // Actually send the email using FormSubmit
@@ -252,26 +252,26 @@ const ReservationPage = () => {
         );
 
         const emailResult = await emailResponse.json();
-        console.log("Email sent successfully:", emailResult);
+        // console.log("Email sent successfully:", emailResult);
       } catch (emailError) {
-        console.error("Failed to send email:", emailError);
+        // console.error("Failed to send email:", emailError);
         // Continue with the process even if email fails
       }
 
       // Save to Firestore if user is logged in
       if (currentUser) {
         try {
-          console.log("🔥 Attempting to save to Firestore...");
+          // console.log("🔥 Attempting to save to Firestore...");
           // Use a try-catch block specifically for Firestore operations
           const bookingsCollection = collection(db, "bookings");
           const docRef = await addDoc(bookingsCollection, {
             ...bookingData,
             timestamp: serverTimestamp(), // Ensure server timestamp is added
           });
-          console.log("✅ Firestore booking saved with ID: ", docRef.id);
+          // console.log("✅ Firestore booking saved with ID: ", docRef.id);
           setSuccessMessage("Booking successfully saved to your account!");
         } catch (firestoreError) {
-          console.error("Error saving to Firestore:", firestoreError);
+          // console.error("Error saving to Firestore:", firestoreError);
           // Still show success even if Firestore fails, since we saved to localStorage
           setSuccessMessage(
             "Booking saved locally. You can view it in your account.",
@@ -290,7 +290,7 @@ const ReservationPage = () => {
         resetForm();
       }, 100);
     } catch (error) {
-      console.error("Failed to process booking:", error);
+      // console.error("Failed to process booking:", error);
       // Don't set error message here since the booking might have succeeded partially
       // Instead, we'll still show the confirmation dialog
       setTimeout(() => {
@@ -299,7 +299,7 @@ const ReservationPage = () => {
       }, 100);
     } finally {
       clearTimeout(timeout);
-      console.log("⏳ Finalizing submission...");
+      // console.log("⏳ Finalizing submission...");
       setIsSubmitting(false);
     }
   };

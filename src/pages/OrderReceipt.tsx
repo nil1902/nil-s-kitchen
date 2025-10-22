@@ -53,10 +53,10 @@ const OrderReceipt = () => {
             setOrder(found);
             setLoading(false); // Never show spinner if we have data
             setUpdating(true); // Show subtle updating indicator
-            console.log("Loaded order from localStorage immediately:", found);
+            // console.log("Loaded order from localStorage immediately:", found);
           }
         } catch (err) {
-          console.error("Failed to parse orders from localStorage", err);
+          // console.error("Failed to parse orders from localStorage", err);
         }
       }
     }
@@ -79,13 +79,13 @@ const OrderReceipt = () => {
             setOrder(fetchedOrder);
             setUpdating(false);
             setLoading(false);
-            console.log(`Fetched order from Firestore in ${Date.now() - start}ms:`, fetchedOrder);
+            // console.log(`Fetched order from Firestore in ${Date.now() - start}ms:`, fetchedOrder);
           }
         } else {
           if (isMounted) setUpdating(false);
         }
       } catch (err) {
-        console.error("Failed to fetch order from Firestore", err);
+        // console.error("Failed to fetch order from Firestore", err);
         if (isMounted) setUpdating(false);
       } finally {
         if (isMounted) setLoading(false);

@@ -71,15 +71,15 @@ export const useOrderTracking = (): UseOrderTrackingReturn => {
       const result = await googleSheetsService.addOrderToSheet(orderData);
       
       if (result.success !== false) {
-        console.log('✅ Order logged to Google Sheets successfully');
+        // console.log('✅ Order logged to Google Sheets successfully');
       } else {
-        console.warn('⚠️ Order logging had issues but order process continues');
+        // console.warn('⚠️ Order logging had issues but order process continues');
       }
       
       return orderData;
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
-      console.error('❌ Failed to log order to Google Sheets:', err);
+      // console.error('❌ Failed to log order to Google Sheets:', err);
       setError(errorMessage);
       // Don't throw error - we don't want to break the order process
       return null;
@@ -100,13 +100,13 @@ export const useOrderTracking = (): UseOrderTrackingReturn => {
       const result = await googleSheetsService.updatePaymentStatus(orderId, paymentStatus, paymentId);
       
       if (result.success !== false) {
-        console.log('✅ Payment status updated in Google Sheets');
+        // console.log('✅ Payment status updated in Google Sheets');
       } else {
-        console.warn('⚠️ Payment status update had issues');
+        // console.warn('⚠️ Payment status update had issues');
       }
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
-      console.error('❌ Failed to update payment status:', err);
+      // console.error('❌ Failed to update payment status:', err);
       setError(errorMessage);
       // Don't throw error
     } finally {
@@ -120,7 +120,7 @@ export const useOrderTracking = (): UseOrderTrackingReturn => {
       return result;
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
-      console.error('❌ Connection test failed:', err);
+      // console.error('❌ Connection test failed:', err);
       setError(errorMessage);
       return false;
     }
@@ -129,10 +129,10 @@ export const useOrderTracking = (): UseOrderTrackingReturn => {
   const syncPendingData = useCallback(async (): Promise<void> => {
     try {
       await googleSheetsService.syncPendingOrders();
-      console.log('✅ Pending data sync completed');
+      // console.log('✅ Pending data sync completed');
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
-      console.error('❌ Failed to sync pending data:', err);
+      // console.error('❌ Failed to sync pending data:', err);
       setError(errorMessage);
     }
   }, []);
